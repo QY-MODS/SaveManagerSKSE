@@ -22,7 +22,7 @@ RE::BSEventNotifyControl ourEventSink::ProcessEvent(const RE::MenuOpenCloseEvent
         return RE::BSEventNotifyControl::kContinue;
     } else if (const auto temp_setting_close = SaveSettings::Menu::Close[menu_name]; !event->opening && temp_setting_close.first) {
         logger::trace("Menu closed: {}", menu_name);
-        M->QueueSaveGame(1, temp_setting_close.second);
+        M->QueueSaveGame(std::max(1, SaveSettings::Menu::After[menu_name]), temp_setting_close.second);
 		return RE::BSEventNotifyControl::kContinue;
 	}
 

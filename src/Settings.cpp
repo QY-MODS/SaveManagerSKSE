@@ -53,3 +53,25 @@ std::map<std::string, std::pair<bool,SaveSettings::Scenarios>> SaveSettings::Men
 //    if (currentState == GameLock::State::Locked) main->freezeTime = true;
 //    else main->freezeTime = false;
 //};
+
+std::map<std::string, int> SaveSettings::Menu::After = {
+    {std::string(RE::ContainerMenu::MENU_NAME), 0},
+    {std::string(RE::BarterMenu::MENU_NAME), 0},
+    {std::string(RE::CraftingMenu::MENU_NAME), 0},
+    {std::string(RE::DialogueMenu::MENU_NAME), 0},
+    {std::string(RE::FavoritesMenu::MENU_NAME), 0},
+    {std::string(RE::GiftMenu::MENU_NAME), 0},
+    {std::string(RE::InventoryMenu::MENU_NAME), 0},
+    {std::string(RE::JournalMenu::MENU_NAME), 0},
+    {std::string(RE::LevelUpMenu::MENU_NAME), 0},
+    {std::string(RE::LockpickingMenu::MENU_NAME), 0},
+    {std::string(RE::MagicMenu::MENU_NAME), 0},
+    {std::string(RE::MapMenu::MENU_NAME), 0},
+    {std::string(RE::MessageBoxMenu::MENU_NAME), 0},
+    {std::string(RE::SleepWaitMenu::MENU_NAME), 0},
+    {std::string(RE::StatsMenu::MENU_NAME), 0},
+    {std::string(RE::TrainingMenu::MENU_NAME), 0},
+    {std::string(RE::TutorialMenu::MENU_NAME), 0},
+    {std::string(RE::TweenMenu::MENU_NAME), 0},
+    {std::string(RE::Console::MENU_NAME), 0},
+};

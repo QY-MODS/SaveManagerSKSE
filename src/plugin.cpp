@@ -2,6 +2,8 @@
 
 #include "UI.h"
 
+Manager* manager = nullptr;
+
 void OnMessage(SKSE::MessagingInterface::Message* message) {
     if (message->type == SKSE::MessagingInterface::kDataLoaded) {
         // Start
@@ -11,7 +13,15 @@ void OnMessage(SKSE::MessagingInterface::Message* message) {
 	}
     else if (message->type == SKSE::MessagingInterface::kNewGame || message->type == SKSE::MessagingInterface::kPostLoadGame) {
         // Post-load
-        auto* eventSink = ourEventSink::GetSingleton();
+        logger::info("New game or post-load game.");
+        manager = Manager::GetSingleton();
+        if (!manager) {
+            logger::error("Manager is null.");
+            PluginSettings::failed = true;
+            return;
+        }
+        auto* eventSink = ourEventSink::GetSingleton(manager);
+        //auto* eventSink = ourEventSink::GetSingleton();
         auto* eventSourceHolder = RE::ScriptEventSourceHolder::GetSingleton();
         //eventSourceHolder->AddEventSink<RE::TESEquipEvent>(eventSink);
         //eventSourceHolder->AddEventSink<RE::TESActivateEvent>(eventSink);
@@ -26,12 +36,8 @@ void OnMessage(SKSE::MessagingInterface::Message* message) {
         logger::info("Event sinks added.");
 
         // MCP
-        MCP::Register();
+        MCP::Register(manager);
         logger::info("MCP registered.");
-
-        // save game
-        /*logger::info("Saving game.");
-        RE::BGSSaveLoadManager::GetSingleton()->Save("asdasdasd");*/
     }
 }
 
@@ -52,7 +58,6 @@ static void SetupLog() {
 }
 
 SKSEPluginLoad(const SKSE::LoadInterface *skse) {
-
     SetupLog();
     logger::info("Plugin loaded");
     SKSE::Init(skse);

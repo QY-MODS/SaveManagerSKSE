@@ -4,14 +4,50 @@
 void Manager::Uninstall() {}
 
 void Manager::QueueSaveGame(int seconds, SaveSettings::Scenarios scenario) {
-    if (seconds > 0 && queue.size()<100) {
+    // mutex lock
+    std::lock_guard<std::mutex> lock(mutex);
+
+    if (SaveSettings::block) return;
+    // if Timer is queued, dont allow a second one
+    if (scenario == SaveSettings::Scenarios::Timer) {
+		for (auto& entry : queue) {
+			if (entry.second == SaveSettings::Scenarios::Timer) return;
+		}
+	}
+    if (seconds > 0 && queue.size() < 100) {
         queue.insert(std::make_pair(seconds, scenario));
+        const auto temp = std::format("Save queued for {} second(s).", seconds);
+        if (SaveSettings::notifications) RE::DebugNotification(temp.c_str());
         Start();
     }
 }
 
+const std::vector<std::pair<int, SaveSettings::Scenarios>> Manager::GetQueue() {
+    // mutex lock
+    std::lock_guard<std::mutex> lock(mutex);
+    return std::vector<std::pair<int, SaveSettings::Scenarios>>(queue.begin(), queue.end());
+}
+
+void Manager::DeleteQueuedSave(SaveSettings::Scenarios scenario){
+    // mutex lock
+	std::lock_guard<std::mutex> lock(mutex);
+	for (auto it = queue.begin(); it != queue.end();) {
+		if (it->second == scenario) {
+			it = queue.erase(it);
+		} else ++it;
+	}
+}
+void Manager::SaveAndQuitGame(){
+    // mutex lock
+    SaveGame(SaveSettings::Scenarios::Timer);
+	SKSE::GetTaskInterface()->AddTask([]() {
+        RE::Main::GetSingleton()->quitGame = true;
+	});
+};
+
 void Manager::UpdateLoop() {
     if (queue.empty()) {
+        logger::trace("Queue is empty, stopping...");
         Stop();
         return;
     }
@@ -36,10 +72,6 @@ void Manager::UpdateLoop() {
     for (auto& entry : queue_vector) {
 		queue.insert(entry);
 	}
-
-    if (queue.empty()) {
-        Stop();
-    }
 
     if (save) SaveGame(reason);
 }
@@ -67,5 +99,6 @@ void Manager::SaveGame(SaveSettings::Scenarios reason) {
         if (!player_ws.empty()) player_ws = "_" + player_ws;
         slm->Save((player_name + player_ws + player_parentcell + date).c_str());
         //GameLock::SetState(GameLock::State::Unlocked);
+        if (SaveSettings::notifications) RE::DebugNotification((Utilities::mod_name + ": Game saved.").c_str());
 	});
 }

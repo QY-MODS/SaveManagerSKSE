@@ -9,6 +9,10 @@
 //    void SetState(State currentState);
 //};
 
+namespace PluginSettings {
+	inline bool failed = false;
+};
+
 namespace LogSettings {
 	inline bool log_trace = true;
 	inline bool log_info = true;
@@ -21,6 +25,11 @@ namespace SaveSettings {
 	inline bool block = false;
     inline int queue_delay = 10;  // in seconds
     inline int ticker_interval = 1; // in seconds
+
+	inline bool notifications = true;
+	inline int timer = 0; // in minutes
+	inline bool close_game_warning = false;
+	inline bool close_game = false;
 
 	//inline bool freeze_game = true;
 
@@ -64,6 +73,8 @@ namespace SaveSettings {
         MenuCloseTutorialMenu,
         MenuCloseTweenMenu,
         MenuCloseConsole,
+
+		Timer,
 	};
 
 	namespace Menu {
@@ -71,46 +82,51 @@ namespace SaveSettings {
         extern std::map<std::string, std::pair<bool, Scenarios>> Open;
 
 		extern std::map<std::string, std::pair<bool, Scenarios>> Close;
+
+		extern std::map<std::string, int> After; // after menu is closed, wait x seconds before saving
 	};
 
+	static std::map<Scenarios, std::string> scenario_names = {
+        {MenuOpenContainerMenu,"MenuOpenContainerMenu"},
+		{MenuOpenBarterMenu,"MenuOpenBarterMenu"},
+		{MenuOpenCraftingMenu,"MenuOpenCraftingMenu"},
+		{MenuOpenDialogueMenu,"MenuOpenDialogueMenu"},
+		{MenuOpenFavoritesMenu,"MenuOpenFavoritesMenu"},
+		{MenuOpenGiftMenu,"MenuOpenGiftMenu"},
+		{MenuOpenInventoryMenu,"MenuOpenInventoryMenu"},
+		{MenuOpenJournalMenu,"MenuOpenJournalMenu"},
+		{MenuOpenLevelUpMenu,"MenuOpenLevelUpMenu"},
+		{MenuOpenLockpickingMenu,"MenuOpenLockpickingMenu"},
+		{MenuOpenMagicMenu,"MenuOpenMagicMenu"},
+		{MenuOpenMapMenu,"MenuOpenMapMenu"},
+		{MenuOpenMessageBoxMenu,"MenuOpenMessageBoxMenu"},
+		{MenuOpenSleepWaitMenu,"MenuOpenSleepWaitMenu"},
+		{MenuOpenStatsMenu,"MenuOpenStatsMenu"},
+		{MenuOpenTrainingMenu,"MenuOpenTrainingMenu"},
+		{MenuOpenTutorialMenu,"MenuOpenTutorialMenu"},
+		{MenuOpenTweenMenu,"MenuOpenTweenMenu"},
+		{MenuOpenConsole,"MenuOpenConsole"},
 
-	static std::map<std::string, Scenarios> scenario_names = {
-        {"MenuOpenContainerMenu", MenuOpenContainerMenu},
-		{"MenuOpenBarterMenu",MenuOpenBarterMenu},
-		{"MenuOpenCraftingMenu",MenuOpenCraftingMenu},
-		{"MenuOpenDialogueMenu",MenuOpenDialogueMenu},
-		{"MenuOpenFavoritesMenu",MenuOpenFavoritesMenu},
-		{"MenuOpenGiftMenu",MenuOpenGiftMenu},
-		{"MenuOpenJournalMenu",MenuOpenJournalMenu},
-		{"MenuOpenLevelUpMenu",MenuOpenLevelUpMenu},
-		{"MenuOpenLockpickingMenu",MenuOpenLockpickingMenu},
-		{"MenuOpenMagicMenu",MenuOpenMagicMenu},
-		{"MenuOpenMapMenu",MenuOpenMapMenu},
-		{"MenuOpenMessageBoxMenu",MenuOpenMessageBoxMenu},
-		{"MenuOpenSleepWaitMenu",MenuOpenSleepWaitMenu},
-		{"MenuOpenStatsMenu",MenuOpenStatsMenu},
-		{"MenuOpenTrainingMenu",MenuOpenTrainingMenu},
-		{"MenuOpenTutorialMenu",MenuOpenTutorialMenu},
-		{"MenuOpenTweenMenu",MenuOpenTweenMenu},
-		{"MenuOpenConsole",MenuOpenConsole},
+		{MenuCloseContainerMenu, "MenuCloseContainerMenu"},
+        {MenuCloseBarterMenu, "MenuCloseBarterMenu"},
+        {MenuCloseCraftingMenu, "MenuCloseCraftingMenu"},
+        {MenuCloseDialogueMenu, "MenuCloseDialogueMenu"},
+        {MenuCloseFavoritesMenu, "MenuCloseFavoritesMenu"},
+        {MenuCloseGiftMenu, "MenuCloseGiftMenu"},
+        {MenuCloseInventoryMenu, "MenuCloseInventoryMenu"},
+        {MenuCloseJournalMenu, "MenuCloseJournalMenu"},
+        {MenuCloseLevelUpMenu, "MenuCloseLevelUpMenu"},
+        {MenuCloseLockpickingMenu, "MenuCloseLockpickingMenu"},
+        {MenuCloseMagicMenu, "MenuCloseMagicMenu"},
+        {MenuCloseMapMenu, "MenuCloseMapMenu"},
+        {MenuCloseMessageBoxMenu, "MenuCloseMessageBoxMenu"},
+        {MenuCloseSleepWaitMenu, "MenuCloseSleepWaitMenu"},
+        {MenuCloseStatsMenu, "MenuCloseStatsMenu"},
+        {MenuCloseTrainingMenu, "MenuCloseTrainingMenu"},
+        {MenuCloseTutorialMenu, "MenuCloseTutorialMenu"},
+        {MenuCloseTweenMenu, "MenuCloseTweenMenu"},
+        {MenuCloseConsole, "MenuCloseConsole"},
 
-		{"MenuCloseContainerMenu",MenuCloseContainerMenu},
-        {"MenuCloseBarterMenu",MenuCloseBarterMenu},
-        {"MenuCloseCraftingMen",MenuCloseCraftingMenu},
-        {"MenuCloseDialogueMenu",MenuCloseDialogueMenu},
-        {"MenuCloseFavoritesMenu",MenuCloseFavoritesMenu},
-        {"MenuCloseGiftMenu",MenuCloseGiftMenu},
-        {"MenuCloseJournalMenu",MenuCloseJournalMenu},
-        {"MenuCloseLevelUpMenu",MenuCloseLevelUpMenu},
-        {"MenuCloseLockpickingMenu",MenuCloseLockpickingMenu},
-        {"MenuCloseMagicMenu",MenuCloseMagicMenu},
-        {"MenuCloseMapMenu",MenuCloseMapMenu},
-        {"MenuCloseMessageBoxMenu",MenuCloseMessageBoxMenu},
-        {"MenuCloseSleepWaitMenu",MenuCloseSleepWaitMenu},
-        {"MenuCloseStatsMenu",MenuCloseStatsMenu},
-        {"MenuCloseTrainingMenu",MenuCloseTrainingMenu},
-        {"MenuCloseTutorialMenu",MenuCloseTutorialMenu},
-        {"MenuCloseTweenMenu",MenuCloseTweenMenu},
-        {"MenuCloseConsole",MenuCloseConsole}
+		{Timer,"Timer"},
     };
 };

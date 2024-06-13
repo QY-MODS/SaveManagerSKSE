@@ -13,11 +13,13 @@ void HelpMarker(const char* desc) {
 
 //std::vector<std::string> MCP::logLines;
 
-void MCP::Register() {
+void MCP::Register(Manager* manager) {
     SKSEMenuFramework::SetSection(Utilities::mod_name);
     SKSEMenuFramework::AddSectionItem("Settings", RenderSettings);
     SKSEMenuFramework::AddSectionItem("Status", RenderStatus);
     SKSEMenuFramework::AddSectionItem("Log", RenderLog);
+
+    M = manager;
 }
 
 void __stdcall MCP::RenderSettings() {
@@ -26,6 +28,71 @@ void __stdcall MCP::RenderSettings() {
     //ImGui::Checkbox("Freeze Game", &SaveSettings::freeze_game);
     //ImGui::SameLine();
     //HelpMarker("Freeze the game when saving");
+
+    ImGui::Checkbox("Notifications", &SaveSettings::notifications);
+    ImGui::SameLine();
+    HelpMarker("Show notifications when saving");
+
+    ImGui::SameLine();
+
+    // setting for blocking saves
+    ImGui::Checkbox("Block Saves", &SaveSettings::block);
+    ImGui::SameLine();
+    HelpMarker("Block all saves");
+
+    // Add timer to save game after x minutes with Start/Stop/Reset buttons
+    ImGui::Text("Timer");
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(200);
+    ImGui::InputInt("##minutes", &SaveSettings::timer);
+    ImGui::SameLine();
+    HelpMarker("Save game after x minutes");
+    ImGui::SameLine();
+    if (ImGui::Button("Start")) {
+		M->QueueSaveGame(SaveSettings::timer * 60, SaveSettings::Scenarios::Timer);
+	}
+    ImGui::SameLine();
+    if (ImGui::Button("Stop")) {
+        M->DeleteQueuedSave(SaveSettings::Scenarios::Timer);
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Reset")) {
+		M->DeleteQueuedSave(SaveSettings::Scenarios::Timer);
+		M->QueueSaveGame(SaveSettings::timer * 60, SaveSettings::Scenarios::Timer);
+	}
+
+
+    // show remaining time in seconds, where we dont know if the timer is running or not or if it is the first element in the queue
+    int temp_remaining = 0;
+    for (const auto& [t, reason] : M->GetQueue()) {
+        if (reason == SaveSettings::Scenarios::Timer) {
+			temp_remaining = t;
+			break;
+		}
+    }
+    ImGui::SameLine();
+    ImGui::Text("Remaining: %d", temp_remaining);
+
+    // add checkbox for warning when time is up
+    ImGui::SameLine();
+    ImGui::Checkbox("Close Game Warning", &SaveSettings::close_game_warning);
+
+    // add checkbox for closing the game when time is up
+
+    ImGui::SameLine();
+    ImGui::Checkbox("Close Game", &SaveSettings::close_game);
+
+    
+    // show warning when the time is up so the player closes the game
+    if (temp_remaining == 0 && !temp_remaining_was_zero && SaveSettings::close_game_warning && !SaveSettings::close_game) {
+		RE::DebugMessageBox("Time is up, close the game!");
+	} else if (temp_remaining == 0 && !temp_remaining_was_zero && SaveSettings::close_game) {
+        M->SaveAndQuitGame();
+    }
+
+    temp_remaining_was_zero = temp_remaining == 0;
+
+
 
     MCP::Settings::RenderCollapseExpandAll();
 
@@ -38,8 +105,6 @@ void __stdcall MCP::RenderSettings() {
 
     // Render each header
     MCP::Settings::RenderMenu();
-
-    
 };
 
 void MCP::Settings::RenderCollapseExpandAll() {
@@ -73,6 +138,7 @@ void MCP::Settings::RenderMenu() {
         for (auto& [menu_name, _] : SaveSettings::Menu::Open) {
             bool setting_open = SaveSettings::Menu::Open[menu_name].first;
             bool setting_close = SaveSettings::Menu::Close[menu_name].first;
+            int setting_after = SaveSettings::Menu::After[menu_name];
             
             ImGui::Text(menu_name.c_str());
             ImGui::SameLine();
@@ -82,14 +148,56 @@ void MCP::Settings::RenderMenu() {
             ImGui::SameLine();
             std::string checkbox_name_close = "Close##" + menu_name;
             ImGui::Checkbox(checkbox_name_close.c_str(), &setting_close);
+            // add text with field for seconds to wait after menu is closed
+            ImGui::SameLine();
+            ImGui::Text("After");
+            ImGui::SameLine();
+            std::string input_name = "##" + menu_name;
+            ImGui::SetNextItemWidth(500);
+            ImGui::InputInt(input_name.c_str(), &setting_after);
+            ImGui::SameLine();
+            HelpMarker("Seconds to wait after menu is closed before saving");
             
             SaveSettings::Menu::Open[menu_name].first = setting_open;
             SaveSettings::Menu::Close[menu_name].first = setting_close;
+            SaveSettings::Menu::After[menu_name] = setting_after;
         };
     } else headerStates["Menu"] = false;
 }
 
-void __stdcall MCP::RenderStatus() {}
+void __stdcall MCP::RenderStatus(){
+    // Status of the plugin with color green if running, red if stopped
+    ImGui::Text("Status: ");
+    ImGui::SameLine();
+    if (!PluginSettings::failed) {
+		ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Running");
+	} else {
+		ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Stopped");
+	}
+
+    // add refresh button to reload the queue
+
+    //FontAwesome::PushSolid();
+    //if (ImGui::Button((FontAwesome::UnicodeToUtf8(0xf021) + " Refresh").c_str())) {
+    //    queue_cache = M->GetQueue();
+    //}
+    //FontAwesome::Pop();
+    // display the queue in table format
+    ImGui::Columns(2, "Queue", true);
+    ImGui::Text("Time");
+    ImGui::NextColumn();
+    ImGui::Text("Reason");
+    ImGui::NextColumn();
+    ImGui::Separator();
+
+    for (const auto& [t, reason] : M->GetQueue()) {
+        ImGui::Text("%d", t);
+		ImGui::NextColumn();
+        if (!SaveSettings::scenario_names.count(reason)) ImGui::Text("Unknown");
+        else ImGui::Text(SaveSettings::scenario_names[reason].c_str());
+		ImGui::NextColumn();
+	}
+};
 
 void __stdcall MCP::RenderLog() {
 
