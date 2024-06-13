@@ -47,14 +47,25 @@ void Manager::Init(){};
 
 void Manager::SaveGame(SaveSettings::Scenarios reason) {
     //if (auto ui = RE::UI::GetSingleton(); ui && ui->GameIsPaused()) return QueueSaveGame(SaveSettings::queue_delay,reason);
+    logger::info("Saving game...");
     if (SaveSettings::block) return QueueSaveGame(SaveSettings::queue_delay, reason);
+    
     SKSE::GetTaskInterface()->AddTask([]() {
         auto slm = RE::BGSSaveLoadManager::GetSingleton();
-        const auto main = RE::Main::GetSingleton();
-        if (!slm || !main) return;
+        if (!slm) return;
         if (slm->thread.isBusy) return;
         //if (SaveSettings::freeze_game) GameLock::SetState(GameLock::State::Locked);
-        slm->Save("asdasdasd");
+        const auto player = RE::PlayerCharacter::GetSingleton();
+        if (!player) return;
+        const auto player_name = std::string(player->GetName());
+        const std::string date = "_" + std::format("{:%y%m%d%H%M%S}", std::chrono::system_clock::now());
+        auto cell = player->GetParentCell();
+        const auto ws = player->GetWorldspace(); 
+        auto player_parentcell = cell ? std::string(cell->GetFullName()) : "";
+        auto player_ws = ws ? std::string(ws->GetFullName()) : "";
+        if (!player_parentcell.empty()) player_parentcell = "_" + player_parentcell;
+        if (!player_ws.empty()) player_ws = "_" + player_ws;
+        slm->Save((player_name + player_ws + player_parentcell + date).c_str());
         //GameLock::SetState(GameLock::State::Unlocked);
 	});
 }

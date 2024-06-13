@@ -6,5 +6,6 @@ set(sources ${sources}
 	src/UI.cpp
 	src/Events.cpp
 	src/Hooks.cpp
+	src/Serialization.cpp
 	src/plugin.cpp
 )

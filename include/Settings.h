@@ -27,7 +27,7 @@ namespace SaveSettings {
 	enum Scenarios {
 		MenuOpenContainerMenu,
 		MenuOpenBarterMenu,
-		MenuOpenCraftingMen,
+		MenuOpenCraftingMenu,
 		MenuOpenDialogueMenu,
 		MenuOpenFavoritesMenu,
 		MenuOpenGiftMenu,
@@ -77,7 +77,7 @@ namespace SaveSettings {
 	static std::map<std::string, Scenarios> scenario_names = {
         {"MenuOpenContainerMenu", MenuOpenContainerMenu},
 		{"MenuOpenBarterMenu",MenuOpenBarterMenu},
-		{"MenuOpenCraftingMen",MenuOpenCraftingMen},
+		{"MenuOpenCraftingMenu",MenuOpenCraftingMenu},
 		{"MenuOpenDialogueMenu",MenuOpenDialogueMenu},
 		{"MenuOpenFavoritesMenu",MenuOpenFavoritesMenu},
 		{"MenuOpenGiftMenu",MenuOpenGiftMenu},

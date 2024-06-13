@@ -6,5 +6,6 @@ set(headers ${headers}
 	include/Manager.h
 	include/UI.h
 	include/Events.h
+	include/Serialization.h
 	include/Hooks.h
 )
