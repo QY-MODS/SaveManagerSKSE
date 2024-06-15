@@ -4,7 +4,9 @@
 
 class ourEventSink : public RE::BSTEventSink<RE::TESContainerChangedEvent>,
                      public RE::BSTEventSink<RE::TESFurnitureEvent>,
-                     public RE::BSTEventSink<RE::MenuOpenCloseEvent>
+                     public RE::BSTEventSink<RE::MenuOpenCloseEvent>,
+                     public RE::BSTEventSink<RE::TESSleepStopEvent>,
+                     public RE::BSTEventSink<RE::TESWaitStopEvent>
 {
 public:
 
@@ -30,6 +32,9 @@ public:
     RE::BSEventNotifyControl ProcessEvent(const RE::MenuOpenCloseEvent* event,
                                           RE::BSTEventSource<RE::MenuOpenCloseEvent>*);
 
+    RE::BSEventNotifyControl ProcessEvent(const RE::TESSleepStopEvent* event, RE::BSTEventSource<RE::TESSleepStopEvent>*);
+
+    RE::BSEventNotifyControl ProcessEvent(const RE::TESWaitStopEvent* event, RE::BSTEventSource<RE::TESWaitStopEvent>*);
 
 
 

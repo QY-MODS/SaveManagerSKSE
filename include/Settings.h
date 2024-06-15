@@ -27,7 +27,9 @@ namespace SaveSettings {
     inline int ticker_interval = 1; // in seconds
 
 	inline bool notifications = true;
-	inline int timer = 0; // in minutes
+	inline int timer_minutes = 0;
+	inline int timer_seconds = 0;
+	inline bool timer_running = false;
 	inline bool close_game_warning = false;
 	inline bool close_game = false;
 
@@ -75,6 +77,9 @@ namespace SaveSettings {
         MenuCloseConsole,
 
 		Timer,
+
+		SleepWaitStop,
+
 	};
 
 	namespace Menu {
@@ -84,6 +89,13 @@ namespace SaveSettings {
 		extern std::map<std::string, std::pair<bool, Scenarios>> Close;
 
 		extern std::map<std::string, int> After; // after menu is closed, wait x seconds before saving
+	};
+
+	namespace SleepWait {
+		inline bool sleep = false;
+		inline bool wait = false;
+		inline int sleep_time = 0; // save after in seconds
+		inline int wait_time = 0; // save after in seconds
 	};
 
 	static std::map<Scenarios, std::string> scenario_names = {
@@ -128,5 +140,7 @@ namespace SaveSettings {
         {MenuCloseConsole, "MenuCloseConsole"},
 
 		{Timer,"Timer"},
+
+		{SleepWaitStop, "SleepWaitStop"}
     };
 };

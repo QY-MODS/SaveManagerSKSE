@@ -38,9 +38,8 @@ public:
 
     const std::vector<std::pair<int, SaveSettings::Scenarios>> GetQueue();
 
-    void DeleteQueuedSave(SaveSettings::Scenarios scenario);
+    bool DeleteQueuedSave(SaveSettings::Scenarios scenario);
 
-    void SaveAndQuitGame();
-
+    void ClearQueue();
 
 };

@@ -28,8 +28,8 @@ void OnMessage(SKSE::MessagingInterface::Message* message) {
         eventSourceHolder->AddEventSink<RE::TESContainerChangedEvent>(eventSink);
         eventSourceHolder->AddEventSink<RE::TESFurnitureEvent>(eventSink);
         RE::UI::GetSingleton()->AddEventSink<RE::MenuOpenCloseEvent>(eventSink);
-        //eventSourceHolder->AddEventSink<RE::TESSleepStopEvent>(eventSink);
-        //eventSourceHolder->AddEventSink<RE::TESWaitStopEvent>(eventSink);
+        eventSourceHolder->AddEventSink<RE::TESSleepStopEvent>(eventSink);
+        eventSourceHolder->AddEventSink<RE::TESWaitStopEvent>(eventSink);
         //eventSourceHolder->AddEventSink<RE::TESFormDeleteEvent>(eventSink);
         //SKSE::GetCrosshairRefEventSource()->AddEventSink(eventSink);
         //RE::PlayerCharacter::GetSingleton()->AsBGSActorCellEventSource()->AddEventSink(eventSink);

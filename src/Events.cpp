@@ -28,3 +28,26 @@ RE::BSEventNotifyControl ourEventSink::ProcessEvent(const RE::MenuOpenCloseEvent
 
 	return RE::BSEventNotifyControl::kContinue;
 }
+
+RE::BSEventNotifyControl ourEventSink::ProcessEvent(const RE::TESSleepStopEvent* event,
+                                                    RE::BSTEventSource<RE::TESSleepStopEvent>*) {
+    if (!event) return RE::BSEventNotifyControl::kContinue;
+
+    const auto temp_time = std::max(1, SaveSettings::SleepWait::sleep_time);
+
+    M->QueueSaveGame(temp_time,SaveSettings::Scenarios::SleepWaitStop);
+
+    return RE::BSEventNotifyControl::kContinue;
+}
+
+RE::BSEventNotifyControl ourEventSink::ProcessEvent(const RE::TESWaitStopEvent* event,
+                                                    RE::BSTEventSource<RE::TESWaitStopEvent>*) {
+    if (!event) return RE::BSEventNotifyControl::kContinue;
+    if (!SaveSettings::SleepWait::wait) return RE::BSEventNotifyControl::kContinue;
+
+    const auto temp_time = std::max(1, SaveSettings::SleepWait::wait_time);
+
+    M->QueueSaveGame(temp_time,SaveSettings::Scenarios::SleepWaitStop);
+
+    return RE::BSEventNotifyControl::kContinue;
+}

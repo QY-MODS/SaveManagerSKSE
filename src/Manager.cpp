@@ -28,24 +28,31 @@ const std::vector<std::pair<int, SaveSettings::Scenarios>> Manager::GetQueue() {
     return std::vector<std::pair<int, SaveSettings::Scenarios>>(queue.begin(), queue.end());
 }
 
-void Manager::DeleteQueuedSave(SaveSettings::Scenarios scenario){
+bool Manager::DeleteQueuedSave(SaveSettings::Scenarios scenario){
     // mutex lock
 	std::lock_guard<std::mutex> lock(mutex);
+    bool deleted = false;
 	for (auto it = queue.begin(); it != queue.end();) {
 		if (it->second == scenario) {
 			it = queue.erase(it);
+            deleted = true;
 		} else ++it;
 	}
+    return deleted;
 }
-void Manager::SaveAndQuitGame(){
+
+void Manager::ClearQueue(){
+    Stop();
     // mutex lock
-    SaveGame(SaveSettings::Scenarios::Timer);
-	SKSE::GetTaskInterface()->AddTask([]() {
-        RE::Main::GetSingleton()->quitGame = true;
-	});
+    std::lock_guard<std::mutex> lock(mutex);
+    queue.clear();
 };
 
 void Manager::UpdateLoop() {
+
+    // mutex lock
+    std::lock_guard<std::mutex> lock(mutex);
+
     if (queue.empty()) {
         logger::trace("Queue is empty, stopping...");
         Stop();
@@ -60,6 +67,9 @@ void Manager::UpdateLoop() {
     std::vector<std::pair<int, SaveSettings::Scenarios>> queue_vector(queue.begin(), queue.end());
     for (auto it = queue_vector.begin(); it != queue_vector.end();) {
         it->first -= deduct;
+        /*if (SaveSettings::notifications && SaveSettings::close_game && it->first <= 10 && it->second == SaveSettings::Scenarios::Timer) {
+            RE::DebugNotification("Quitting game after saving in less than 10 seconds...");
+        }*/
         if (it->first <= 0) {
             reason = it->second;
             it = queue_vector.erase(it);
@@ -73,7 +83,12 @@ void Manager::UpdateLoop() {
 		queue.insert(entry);
 	}
 
-    if (save) SaveGame(reason);
+    if (save) {
+        SaveGame(reason);
+        if (reason == SaveSettings::Scenarios::Timer) SaveSettings::timer_running = false;
+        if (SaveSettings::close_game) QuitGame();
+		else if (SaveSettings::close_game_warning) RE::DebugMessageBox("Time is up, close the game!");
+    }
 }
 void Manager::Init(){};
 
@@ -102,3 +117,8 @@ void Manager::SaveGame(SaveSettings::Scenarios reason) {
         if (SaveSettings::notifications) RE::DebugNotification((Utilities::mod_name + ": Game saved.").c_str());
 	});
 }
+
+void Manager::QuitGame(){
+    SKSE::GetTaskInterface()->AddTask([]() { RE::Main::GetSingleton()->quitGame = true; });
+};
+

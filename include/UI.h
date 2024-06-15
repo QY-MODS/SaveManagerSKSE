@@ -11,13 +11,9 @@ namespace MCP {
 	inline std::string log_path = Utilities::GetLogPath().string();
     inline std::vector<std::string> logLines;
 
-    inline bool temp_remaining_was_zero = false;
-
 	inline std::unordered_map<std::string, bool> headerStates;
-	//inline std::vector<std::pair<int,SaveSettings::Scenarios>> queue_cache;
-    inline std::vector header_names = {"Menu"};
+    inline std::vector header_names = {"Menu", "SleepWait"};
 
-	//void Register();
 	void Register(Manager* manager);
 
 	void __stdcall RenderSettings();
@@ -26,6 +22,10 @@ namespace MCP {
 
 	namespace Settings {
 		void RenderCollapseExpandAll();
+		void RenderTimer();
 		void RenderMenu();
+
+		void RenderSleepWait();
+
 	};
 };
