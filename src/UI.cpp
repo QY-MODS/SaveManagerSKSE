@@ -14,6 +14,13 @@ void HelpMarker(const char* desc) {
 //std::vector<std::string> MCP::logLines;
 
 void MCP::Register(Manager* manager) {
+
+    if (!SKSEMenuFramework::IsInstalled()) {
+		logger::error("SKSEMenuFramework is not installed.");
+		PluginSettings::failed = true;
+		return;
+	}
+
     SKSEMenuFramework::SetSection(Utilities::mod_name);
     SKSEMenuFramework::AddSectionItem("Settings", RenderSettings);
     SKSEMenuFramework::AddSectionItem("Status", RenderStatus);
@@ -160,10 +167,10 @@ void MCP::Settings::RenderMenu() {
         }
         headerStates["Menu"] = true;
 
-        float maxTextWidth = 0.0f;
-        for (const auto& [menu_name, _] : SaveSettings::Menu::Open) {
-            maxTextWidth = std::max(maxTextWidth, ImGui::CalcTextSize(menu_name.c_str()).x);
-        }
+        float maxTextWidth = 200.0f;
+        //for (const auto& [menu_name, _] : SaveSettings::Menu::Open) {
+            //maxTextWidth = std::max(maxTextWidth, ImGui::CalcTextSize(menu_name.c_str()).x);
+        //}
 
         for (auto& [menu_name, _] : SaveSettings::Menu::Open) {
             bool setting_open = SaveSettings::Menu::Open[menu_name].first;
@@ -201,13 +208,17 @@ void MCP::Settings::RenderSleepWait(){
     else ImGui::SetNextItemOpen(true);
     if (ImGui::CollapsingHeader("Sleep/Wait", ImGuiTreeNodeFlags_DefaultOpen)) {
         if (ImGui::Button("Reset All")) {
+			SaveSettings::SleepWait::sleep = false;
+			SaveSettings::SleepWait::wait = false;
+			SaveSettings::SleepWait::sleep_time = 0;
+			SaveSettings::SleepWait::wait_time = 0;
         }
         headerStates["SleepWait"] = true;
 
-        float maxTextWidth = 0.0f;
-        for (const auto& temp_name : {"Sleep", "Wait"}) {
-            maxTextWidth = std::max(maxTextWidth, ImGui::CalcTextSize(temp_name).x);
-        }
+        float maxTextWidth = 200.0f;
+        //for (const auto& temp_name : {"Sleep", "Wait"}) {
+            //maxTextWidth = std::max(maxTextWidth, ImGui::CalcTextSize(temp_name).x);
+        //}
             
         ImGui::Checkbox("Sleep", &SaveSettings::SleepWait::sleep);
         ImGui::SameLine();
@@ -225,7 +236,7 @@ void MCP::Settings::RenderSleepWait(){
         ImGui::Text("After");
         ImGui::SameLine();
         ImGui::SetNextItemWidth(500);
-        ImGui::InputInt("##sleep_time", &SaveSettings::SleepWait::wait_time);
+        ImGui::InputInt("##wait_time", &SaveSettings::SleepWait::wait_time);
         ImGui::SameLine();
         HelpMarker("Seconds to save after waiting");
     } else headerStates["SleepWait"] = false;

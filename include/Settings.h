@@ -32,6 +32,7 @@ namespace SaveSettings {
 	inline bool timer_running = false;
 	inline bool close_game_warning = false;
 	inline bool close_game = false;
+	inline bool save_on_quit = false;
 
 	//inline bool freeze_game = true;
 
