@@ -15,8 +15,10 @@ void Ticker::Start() {
 void Ticker::RunLoop(){
     m_ThreadActive = true;
     while (m_Running) {
-        std::thread runnerThread(m_OnTick);
-        runnerThread.detach();
+        if (!m_Busy.exchange(true)) {  // Check and set busy state atomically
+            std::thread runnerThread(m_OnTick);
+            runnerThread.detach();
+        }
         m_IntervalMutex.lock();
         m_Interval = std::chrono::milliseconds(std::min(60000, std::max(500, 1000*SaveSettings::ticker_interval)));
         m_IntervalMutex.unlock();

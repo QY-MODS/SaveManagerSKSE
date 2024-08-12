@@ -17,7 +17,7 @@ void MCP::Register(Manager* manager) {
 
     if (!SKSEMenuFramework::IsInstalled()) {
 		logger::error("SKSEMenuFramework is not installed.");
-		PluginSettings::failed = true;
+        PluginSettings::running = false;
 		return;
 	}
 
@@ -106,6 +106,8 @@ void MCP::Settings::RenderTimer(){
     }
 
     if (ImGui::CollapsingHeader("Timer", ImGuiTreeNodeFlags_DefaultOpen)) {
+        ImGui::Checkbox("Periodic", &SaveSettings::timer_periodic);
+        ImGui::SameLine();
         ImGui::Text("Minutes:");
         ImGui::SameLine();
         ImGui::SetNextItemWidth(200);
@@ -247,10 +249,22 @@ void __stdcall MCP::RenderStatus(){
     // Status of the plugin with color green if running, red if stopped
     ImGui::Text("Status: ");
     ImGui::SameLine();
-    if (!PluginSettings::failed) {
+    if (PluginSettings::running) {
 		ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Running");
 	} else {
 		ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Stopped");
+	}
+
+    // add disable/enable button if enabled/disabled
+
+    if (PluginSettings::running) {
+		if (ImGui::Button("Disable Mod")) {
+			M->DisableMod();
+		}
+	} else {
+		if (ImGui::Button("Enable Mod")) {
+			M->EnableMod();
+		}
 	}
 
     // add refresh button to reload the queue

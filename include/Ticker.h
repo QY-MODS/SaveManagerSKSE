@@ -14,6 +14,8 @@ public:
 
     inline void Stop() { m_Running = false; }
 
+    std::atomic<bool> m_Busy;
+
 private:
     void RunLoop();
 

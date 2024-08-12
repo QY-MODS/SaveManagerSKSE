@@ -17,7 +17,7 @@ void OnMessage(SKSE::MessagingInterface::Message* message) {
         manager = Manager::GetSingleton();
         if (!manager) {
             logger::error("Manager is null.");
-            PluginSettings::failed = true;
+            PluginSettings::running = false;
             return;
         }
         auto* eventSink = ourEventSink::GetSingleton(manager);

@@ -34,12 +34,16 @@ public:
 
     void Uninstall();
 
+    void DisableMod();
+
+    void EnableMod();
+
     void QueueSaveGame(int seconds, SaveSettings::Scenarios scenario);
 
     const std::vector<std::pair<int, SaveSettings::Scenarios>> GetQueue();
 
     bool DeleteQueuedSave(SaveSettings::Scenarios scenario);
 
-    void ClearQueue();
+    inline void ClearQueue();
 
 };

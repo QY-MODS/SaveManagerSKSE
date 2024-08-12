@@ -10,7 +10,7 @@
 //};
 
 namespace PluginSettings {
-	inline bool failed = false;
+	inline bool running = true;
 };
 
 namespace LogSettings {
@@ -30,6 +30,7 @@ namespace SaveSettings {
 	inline int timer_minutes = 0;
 	inline int timer_seconds = 0;
 	inline bool timer_running = false;
+	inline bool timer_periodic = false;
 	inline bool close_game_warning = false;
 	inline bool close_game = false;
 	inline bool save_on_quit = false;
