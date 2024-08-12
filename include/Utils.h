@@ -31,6 +31,8 @@ namespace Utilities {
 		bool IsOpen(const std::string_view menuname);
 	};
 
+	void AutoSave();
+
 };
 
 

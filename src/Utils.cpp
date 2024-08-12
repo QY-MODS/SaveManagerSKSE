@@ -34,4 +34,9 @@ std::vector<std::string> Utilities::ReadLogFile() {
     file.close();
 
     return logLines;
+}
+void Utilities::AutoSave(){
+    using func_t = void(RE::BGSSaveLoadManager * a1, uint32_t a2);
+    REL::Relocation<func_t> func{RELOCATION_ID(34859, 35769)};
+    return func(RE::BGSSaveLoadManager::GetSingleton(), 0xf0000040);
 };
