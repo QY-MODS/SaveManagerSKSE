@@ -60,9 +60,13 @@ void Manager::ClearQueue(){
 
 void Manager::UpdateLoop() {
 
-    if (m_Busy.exchange(true)) { return;}
+    if (m_Busy.exchange(true)) { 
+        logger::trace("Busy flag set, returning...");
+        return;
+    }
 
     auto clearBusy = [](std::atomic<bool>* busyFlag) {
+        logger::trace("Clearing busy flag");
         busyFlag->store(false);
     };
 
