@@ -23,10 +23,10 @@ public:
     }
 
 
-    RE::BSEventNotifyControl ProcessEvent(const RE::TESContainerChangedEvent* event,
+    [[maybe_unused]] RE::BSEventNotifyControl ProcessEvent(const RE::TESContainerChangedEvent*,
                                           RE::BSTEventSource<RE::TESContainerChangedEvent>*);
 
-    RE::BSEventNotifyControl ProcessEvent(const RE::TESFurnitureEvent* event,
+    [[maybe_unused]] RE::BSEventNotifyControl ProcessEvent(const RE::TESFurnitureEvent*,
                                           RE::BSTEventSource<RE::TESFurnitureEvent>*);
 
     RE::BSEventNotifyControl ProcessEvent(const RE::MenuOpenCloseEvent* event,
@@ -41,5 +41,11 @@ public:
 private:
     Manager* M = nullptr;
 
-    ourEventSink(Manager* manager) : M(manager){};
+    ourEventSink(Manager* manager) : M(manager){ 
+        if (SaveSettings::timer_periodic && SaveSettings::timer_running) {
+            SaveSettings::timer_running = false;
+            M->QueueSaveGame(SaveSettings::timer_minutes * 60 + SaveSettings::timer_seconds,
+                             SaveSettings::Scenarios::Timer);
+		}
+    };
 };
