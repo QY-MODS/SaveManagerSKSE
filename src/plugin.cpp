@@ -7,13 +7,6 @@ Manager* manager = nullptr;
 void OnMessage(SKSE::MessagingInterface::Message* message) {
     if (message->type == SKSE::MessagingInterface::kDataLoaded) {
         // Start
-    }
-    else if (message->type == SKSE::MessagingInterface::kPostLoad) {
-		// Post-load
-	}
-    else if (message->type == SKSE::MessagingInterface::kNewGame || message->type == SKSE::MessagingInterface::kPostLoadGame) {
-        // Post-load
-        logger::info("New game or post-load game.");
         manager = Manager::GetSingleton();
         if (!manager) {
             logger::error("Manager is null.");
@@ -21,23 +14,23 @@ void OnMessage(SKSE::MessagingInterface::Message* message) {
             return;
         }
         auto* eventSink = ourEventSink::GetSingleton(manager);
-        //auto* eventSink = ourEventSink::GetSingleton();
         auto* eventSourceHolder = RE::ScriptEventSourceHolder::GetSingleton();
-        //eventSourceHolder->AddEventSink<RE::TESEquipEvent>(eventSink);
-        //eventSourceHolder->AddEventSink<RE::TESActivateEvent>(eventSink);
         eventSourceHolder->AddEventSink<RE::TESContainerChangedEvent>(eventSink);
         eventSourceHolder->AddEventSink<RE::TESFurnitureEvent>(eventSink);
         RE::UI::GetSingleton()->AddEventSink<RE::MenuOpenCloseEvent>(eventSink);
         eventSourceHolder->AddEventSink<RE::TESSleepStopEvent>(eventSink);
         eventSourceHolder->AddEventSink<RE::TESWaitStopEvent>(eventSink);
-        //eventSourceHolder->AddEventSink<RE::TESFormDeleteEvent>(eventSink);
-        //SKSE::GetCrosshairRefEventSource()->AddEventSink(eventSink);
-        //RE::PlayerCharacter::GetSingleton()->AsBGSActorCellEventSource()->AddEventSink(eventSink);
         logger::info("Event sinks added.");
 
         // MCP
         MCP::Register(manager);
         logger::info("MCP registered.");
+    }
+    else if (message->type == SKSE::MessagingInterface::kPostLoad) {
+		// Post-load
+	}
+    else if (message->type == SKSE::MessagingInterface::kNewGame || message->type == SKSE::MessagingInterface::kPostLoadGame) {
+        // Post-load
     }
 }
 
@@ -61,6 +54,8 @@ SKSEPluginLoad(const SKSE::LoadInterface *skse) {
     SetupLog();
     logger::info("Plugin loaded");
     SKSE::Init(skse);
+    SaveSettings::LoadJSON();
+    InitializeSerialization();
     SKSE::GetMessagingInterface()->RegisterListener(OnMessage);
     return true;
 }
