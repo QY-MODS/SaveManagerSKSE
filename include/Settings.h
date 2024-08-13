@@ -9,6 +9,9 @@
 //    void SetState(State currentState);
 //};
 
+const std::uint32_t kDataKey = 'ASSE';
+const std::string settings_save_path = std::format("Data/SKSE/Plugins/{}/Settings.json", Utilities::mod_name);
+
 namespace PluginSettings {
 	inline bool running = true;
 };
@@ -21,6 +24,15 @@ namespace LogSettings {
 };
 
 namespace SaveSettings {
+
+	using namespace rapidjson;
+
+	void SaveJSON();
+	void LoadJSON();
+	inline bool auto_save_to_json = true;
+
+	rapidjson::Value to_json_main_stuff(Document::AllocatorType& a);
+	rapidjson::Value to_json_timer_stuff(Document::AllocatorType& a);
 
 	inline bool block = false;
     inline int queue_delay = 10;  // in seconds
@@ -91,6 +103,9 @@ namespace SaveSettings {
 		extern std::map<std::string, std::pair<bool, Scenarios>> Close;
 
 		extern std::map<std::string, int> After; // after menu is closed, wait x seconds before saving
+
+		rapidjson::Value to_json(Document::AllocatorType& a);
+
 	};
 
 	namespace SleepWait {
@@ -98,6 +113,8 @@ namespace SaveSettings {
 		inline bool wait = false;
 		inline int sleep_time = 0; // save after in seconds
 		inline int wait_time = 0; // save after in seconds
+
+		rapidjson::Value to_json(Document::AllocatorType& a);
 	};
 
 	static std::map<Scenarios, std::string> scenario_names = {

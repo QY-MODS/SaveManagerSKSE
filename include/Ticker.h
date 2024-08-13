@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Settings.h"
+#include "Serialization.h"
 
 
 // https://github.com/ozooma10/OSLAroused-SKSE/blob/master/src/Utilities/Ticker.h

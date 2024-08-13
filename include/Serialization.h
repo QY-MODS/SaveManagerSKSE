@@ -1,5 +1,5 @@
+#include "Settings.h"
 
+void SaveCallback(SKSE::SerializationInterface* serializationInterface);
 
-void ReadSettings(){};
-
-void WriteSettings(){};
+void InitializeSerialization();

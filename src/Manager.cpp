@@ -128,6 +128,7 @@ void Manager::SaveGame(SaveSettings::Scenarios reason) {
     if (!RE::PlayerCharacter::GetSingleton()->GetParentCell()) return QueueSaveGame(SaveSettings::queue_delay, reason);
     if (RE::PlayerCharacter::GetSingleton()->IsInCombat()) return QueueSaveGame(SaveSettings::queue_delay, reason);
     else if (auto ui = RE::UI::GetSingleton();ui->IsMenuOpen(RE::DialogueMenu::MENU_NAME)) return QueueSaveGame(SaveSettings::queue_delay, reason);
+	else if (ui->IsMenuOpen(RE::MainMenu::MENU_NAME)) return QueueSaveGame(SaveSettings::queue_delay, reason);
 	else if (ui->IsMenuOpen(RE::TweenMenu::MENU_NAME)) return QueueSaveGame(SaveSettings::queue_delay, reason);
 	else if (ui->IsMenuOpen(RE::TrainingMenu::MENU_NAME)) return QueueSaveGame(SaveSettings::queue_delay, reason);
 	else if (ui->IsMenuOpen(RE::StatsMenu::MENU_NAME)) return QueueSaveGame(SaveSettings::queue_delay, reason);

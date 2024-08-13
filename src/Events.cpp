@@ -1,11 +1,11 @@
 #include "Events.h"
 
-RE::BSEventNotifyControl ourEventSink::ProcessEvent(const RE::TESContainerChangedEvent* event,
+RE::BSEventNotifyControl ourEventSink::ProcessEvent(const RE::TESContainerChangedEvent*,
                                                     RE::BSTEventSource<RE::TESContainerChangedEvent>*) {
     return RE::BSEventNotifyControl::kContinue;
 }
 
-RE::BSEventNotifyControl ourEventSink::ProcessEvent(const RE::TESFurnitureEvent* event,
+RE::BSEventNotifyControl ourEventSink::ProcessEvent(const RE::TESFurnitureEvent*,
                                                     RE::BSTEventSource<RE::TESFurnitureEvent>*) {
     return RE::BSEventNotifyControl::kContinue;
 }

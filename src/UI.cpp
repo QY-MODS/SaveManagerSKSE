@@ -14,10 +14,12 @@ void HelpMarker(const char* desc) {
 //std::vector<std::string> MCP::logLines;
 
 void MCP::Register(Manager* manager) {
+    
+    M = manager;
 
     if (!SKSEMenuFramework::IsInstalled()) {
 		logger::error("SKSEMenuFramework is not installed.");
-        PluginSettings::running = false;
+        M->DisableMod();
 		return;
 	}
 
@@ -26,7 +28,6 @@ void MCP::Register(Manager* manager) {
     SKSEMenuFramework::AddSectionItem("Status", RenderStatus);
     SKSEMenuFramework::AddSectionItem("Log", RenderLog);
 
-    M = manager;
 }
 
 void __stdcall MCP::RenderSettings() {
@@ -35,6 +36,11 @@ void __stdcall MCP::RenderSettings() {
     // ImGui::SameLine();
     // HelpMarker("Freeze the game when saving");
 
+    if (ImGui::Button("Save Settings")) SaveSettings::SaveJSON();
+    ImGui::SameLine();
+    ImGui::Checkbox("Auto Save", &SaveSettings::auto_save_to_json);
+    ImGui::SameLine();
+    HelpMarker("Save settings automatically upon game save");
 
     ImGui::Checkbox("Notifications", &SaveSettings::notifications);
     ImGui::SameLine();
@@ -105,7 +111,7 @@ void MCP::Settings::RenderTimer(){
         }
     }
 
-    if (ImGui::CollapsingHeader("Timer", ImGuiTreeNodeFlags_DefaultOpen)) {
+    if (ImGui::CollapsingHeader("Timer##header", ImGuiTreeNodeFlags_DefaultOpen)) {
         ImGui::Checkbox("Periodic", &SaveSettings::timer_periodic);
         ImGui::SameLine();
         ImGui::Text("Minutes:");
@@ -118,13 +124,13 @@ void MCP::Settings::RenderTimer(){
         ImGui::SetNextItemWidth(200);
         ImGui::InputInt("##timer_seconds", &SaveSettings::timer_seconds);
         ImGui::SameLine();
-        if (ImGui::Button("Start")) {
+        if (ImGui::Button("Start##timer")) {
             M->QueueSaveGame(SaveSettings::timer_minutes * 60 + SaveSettings::timer_seconds,
                              SaveSettings::Scenarios::Timer);
             SaveSettings::timer_running = true;
         }
         ImGui::SameLine();
-        if (ImGui::Button("Stop")) {
+        if (ImGui::Button("Stop##timer")) {
             M->DeleteQueuedSave(SaveSettings::Scenarios::Timer);
             SaveSettings::timer_running = false;
         }

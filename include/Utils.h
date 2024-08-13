@@ -1,5 +1,11 @@
 #pragma once
 
+#include "rapidjson/document.h"
+#include <rapidjson/error/en.h>
+#include <rapidjson/istreamwrapper.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/writer.h>
+
 //#include <chrono>
 #include <windows.h>
 #include <functional>
@@ -12,7 +18,6 @@
 #include <mutex>
 #include <algorithm>
 #include <ClibUtil/editorID.hpp>
-#include "rapidjson/document.h"
 #include <filesystem>
 #include <fstream>
 
@@ -20,7 +25,8 @@
 
 namespace Utilities {
 
-	const auto mod_name = static_cast<std::string>(SKSE::PluginDeclaration::GetSingleton()->GetName());
+    const auto mod_name = static_cast<std::string>(SKSE::PluginDeclaration::GetSingleton()->GetName());
+    const auto plugin_version = SKSE::PluginDeclaration::GetSingleton()->GetVersion();
 
 	std::filesystem::path GetLogPath();
 
