@@ -29,7 +29,12 @@ namespace SaveSettings {
 
 	void SaveJSON();
 	void LoadJSON();
+
+	uint32_t GetSaveFlag();
+	
 	inline bool auto_save_to_json = true;
+    inline bool regular_saves = false;
+	inline bool block_autosaving_notif = false;
 
 	rapidjson::Value to_json_main_stuff(Document::AllocatorType& a);
 	rapidjson::Value to_json_timer_stuff(Document::AllocatorType& a);
@@ -73,6 +78,8 @@ namespace SaveSettings {
 		Timer,
 
 		SleepWaitStop,
+
+		QuitGame,
 
 	};
 
@@ -123,3 +130,10 @@ namespace SaveSettings {
 		{SleepWaitStop, "SleepWaitStop"}
     };
 };
+
+
+inline void MainSaveFunction() {
+    SaveSettings::block_autosaving_notif = true;
+    Utilities::AutoSave(SaveSettings::GetSaveFlag());
+    if (SaveSettings::notifications) RE::DebugNotification((Utilities::mod_name + ": Game saved.").c_str());
+}

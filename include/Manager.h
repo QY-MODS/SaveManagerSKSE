@@ -18,8 +18,7 @@ private:
     
     void UpdateLoop();
     void Init();
-    void SaveGame(SaveSettings::Scenarios reason);
-    void QuitGame();
+    bool SaveGame(SaveSettings::Scenarios reason);
 
 public:
     Manager()

@@ -27,7 +27,7 @@ void Manager::QueueSaveGame(int seconds, SaveSettings::Scenarios scenario) {
     if (seconds > 0 && queue.size() < 100) {
         queue.insert(std::make_pair(seconds, scenario));
         const auto temp = std::format("Save queued for {} second(s).", seconds);
-        if (SaveSettings::notifications) RE::DebugNotification(temp.c_str());
+        if (SaveSettings::notifications && scenario != SaveSettings::Scenarios::QuitGame) RE::DebugNotification(temp.c_str());
         Start();
     }
 }
@@ -66,7 +66,7 @@ void Manager::UpdateLoop() {
     }
 
     auto clearBusy = [](std::atomic<bool>* busyFlag) {
-        logger::trace("Clearing busy flag");
+        //logger::trace("Clearing busy flag");
         busyFlag->store(false);
     };
 
@@ -107,45 +107,63 @@ void Manager::UpdateLoop() {
 	}
 
     if (save) {
-        SaveGame(reason);
+        bool saved = SaveGame(reason);
         if (reason == SaveSettings::Scenarios::Timer) {
-            if (SaveSettings::timer_periodic) {
+            if (saved && SaveSettings::close_game) {
+                RE::DebugNotification("Closing game in 10 seconds!");
+                SaveSettings::close_game = false;
+                QueueSaveGame(10, SaveSettings::Scenarios::QuitGame);
+            }
+            else if (SaveSettings::timer_periodic) {
                 QueueSaveGame(SaveSettings::timer_minutes * 60 + SaveSettings::timer_seconds, SaveSettings::Scenarios::Timer);
             }
             else SaveSettings::timer_running = false;
-            if (SaveSettings::close_game) QuitGame();
-		    else if (SaveSettings::close_game_warning) RE::DebugMessageBox("Time is up, close the game!");
+		    if (SaveSettings::close_game_warning) RE::DebugMessageBox("Time is up, close the game!");
         }
     }
 
 }
 void Manager::Init(){};
 
-void Manager::SaveGame(SaveSettings::Scenarios reason) {
+bool Manager::SaveGame(SaveSettings::Scenarios reason) {
+    if (reason == SaveSettings::Scenarios::QuitGame) {
+		Utilities::QuitGame();
+        return true;
+	}
     //if (auto ui = RE::UI::GetSingleton(); ui && ui->GameIsPaused()) return QueueSaveGame(SaveSettings::queue_delay,reason);
-    logger::info("Saving game...");
-    if (SaveSettings::block) return QueueSaveGame(SaveSettings::queue_delay, reason);
-    if (!RE::PlayerCharacter::GetSingleton()->GetParentCell()) return QueueSaveGame(SaveSettings::queue_delay, reason);
-    if (RE::PlayerCharacter::GetSingleton()->IsInCombat()) return QueueSaveGame(SaveSettings::queue_delay, reason);
-    else if (auto ui = RE::UI::GetSingleton();ui->IsMenuOpen(RE::DialogueMenu::MENU_NAME)) return QueueSaveGame(SaveSettings::queue_delay, reason);
-	else if (ui->IsMenuOpen(RE::MainMenu::MENU_NAME)) return QueueSaveGame(SaveSettings::queue_delay, reason);
-	else if (ui->IsMenuOpen(RE::TweenMenu::MENU_NAME)) return QueueSaveGame(SaveSettings::queue_delay, reason);
-	else if (ui->IsMenuOpen(RE::TrainingMenu::MENU_NAME)) return QueueSaveGame(SaveSettings::queue_delay, reason);
-	else if (ui->IsMenuOpen(RE::StatsMenu::MENU_NAME)) return QueueSaveGame(SaveSettings::queue_delay, reason);
-	else if (ui->IsMenuOpen(RE::SleepWaitMenu::MENU_NAME)) return QueueSaveGame(SaveSettings::queue_delay, reason);
-	else if (ui->IsMenuOpen(RE::MessageBoxMenu::MENU_NAME)) return QueueSaveGame(SaveSettings::queue_delay, reason);
-	else if (ui->IsMenuOpen(RE::MapMenu::MENU_NAME)) return QueueSaveGame(SaveSettings::queue_delay, reason);
-	else if (ui->IsMenuOpen(RE::MagicMenu::MENU_NAME)) return QueueSaveGame(SaveSettings::queue_delay, reason);
-	else if (ui->IsMenuOpen(RE::LockpickingMenu::MENU_NAME)) return QueueSaveGame(SaveSettings::queue_delay, reason);
-	else if (ui->IsMenuOpen(RE::LevelUpMenu::MENU_NAME)) return QueueSaveGame(SaveSettings::queue_delay, reason);
-	else if (ui->IsMenuOpen(RE::JournalMenu::MENU_NAME)) return QueueSaveGame(SaveSettings::queue_delay, reason);
-	else if (ui->IsMenuOpen(RE::InventoryMenu::MENU_NAME)) return QueueSaveGame(SaveSettings::queue_delay, reason);
-	else if (ui->IsMenuOpen(RE::GiftMenu::MENU_NAME)) return QueueSaveGame(SaveSettings::queue_delay, reason);
-	else if (ui->IsMenuOpen(RE::FavoritesMenu::MENU_NAME)) return QueueSaveGame(SaveSettings::queue_delay, reason);
-	else if (ui->IsMenuOpen(RE::CraftingMenu::MENU_NAME)) return QueueSaveGame(SaveSettings::queue_delay, reason);
-	else if (ui->IsMenuOpen(RE::BarterMenu::MENU_NAME)) return QueueSaveGame(SaveSettings::queue_delay, reason);
-	else if (ui->IsMenuOpen(RE::ContainerMenu::MENU_NAME)) return QueueSaveGame(SaveSettings::queue_delay, reason);
+    auto ui = RE::UI::GetSingleton();
+    if (!ui) {
+        QueueSaveGame(SaveSettings::queue_delay, reason);
+        return false;
+    }
+    if (SaveSettings::block || 
+        !RE::PlayerCharacter::GetSingleton()->GetParentCell() ||
+        RE::PlayerCharacter::GetSingleton()->IsInCombat() ||
+        ui->IsMenuOpen(RE::DialogueMenu::MENU_NAME) ||
+        ui->IsMenuOpen(RE::MainMenu::MENU_NAME) ||
+        ui->IsMenuOpen(RE::TweenMenu::MENU_NAME) ||
+        ui->IsMenuOpen(RE::TrainingMenu::MENU_NAME) ||
+        ui->IsMenuOpen(RE::StatsMenu::MENU_NAME) ||
+        ui->IsMenuOpen(RE::SleepWaitMenu::MENU_NAME) ||
+        ui->IsMenuOpen(RE::MessageBoxMenu::MENU_NAME) ||
+        ui->IsMenuOpen(RE::MapMenu::MENU_NAME) ||
+        ui->IsMenuOpen(RE::MagicMenu::MENU_NAME) ||
+        ui->IsMenuOpen(RE::LockpickingMenu::MENU_NAME) ||
+        ui->IsMenuOpen(RE::LevelUpMenu::MENU_NAME) ||
+        ui->IsMenuOpen(RE::JournalMenu::MENU_NAME) ||
+        ui->IsMenuOpen(RE::InventoryMenu::MENU_NAME) ||
+        ui->IsMenuOpen(RE::GiftMenu::MENU_NAME) ||
+        ui->IsMenuOpen(RE::FavoritesMenu::MENU_NAME) ||
+        ui->IsMenuOpen(RE::CraftingMenu::MENU_NAME) ||
+        ui->IsMenuOpen(RE::BarterMenu::MENU_NAME) ||
+        ui->IsMenuOpen(RE::ContainerMenu::MENU_NAME) ||
+        ui->IsMenuOpen(RE::TweenMenu::MENU_NAME)) {
+        
+        QueueSaveGame(SaveSettings::queue_delay, reason);
+        return false;
+    }
     
+    logger::info("Saving game...");
     SKSE::GetTaskInterface()->AddTask([]() {
         //auto slm = RE::BGSSaveLoadManager::GetSingleton();
         //if (!slm) return;
@@ -166,13 +184,7 @@ void Manager::SaveGame(SaveSettings::Scenarios reason) {
         //slm->Save((player_name + player_ws + player_parentcell + date).c_str());
         //GameLock::SetState(GameLock::State::Unlocked);
 
-        Utilities::AutoSave();
-
-        if (SaveSettings::notifications) RE::DebugNotification((Utilities::mod_name + ": Game saved.").c_str());
+        MainSaveFunction();
 	});
+	return true;
 }
-
-void Manager::QuitGame(){
-    SKSE::GetTaskInterface()->AddTask([]() { RE::Main::GetSingleton()->quitGame = true; });
-};
-

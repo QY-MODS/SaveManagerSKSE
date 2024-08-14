@@ -35,8 +35,15 @@ std::vector<std::string> Utilities::ReadLogFile() {
 
     return logLines;
 }
-void Utilities::AutoSave(){
+
+void Utilities::AutoSave(uint32_t flag) {
+    // Credits: SkyrimThiago
+    // auto save 0xf0000040
+    // regular save 0xf0000080
     using func_t = void(RE::BGSSaveLoadManager * a1, uint32_t a2);
     REL::Relocation<func_t> func{RELOCATION_ID(34859, 35769)};
-    return func(RE::BGSSaveLoadManager::GetSingleton(), 0xf0000040);
+    return func(RE::BGSSaveLoadManager::GetSingleton(), flag);
+}
+void Utilities::QuitGame(){
+    SKSE::GetTaskInterface()->AddTask([]() { RE::Main::GetSingleton()->quitGame = true; });
 };

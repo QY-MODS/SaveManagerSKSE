@@ -37,7 +37,8 @@ namespace Utilities {
 		bool IsOpen(const std::string_view menuname);
 	};
 
-	void AutoSave();
+	void AutoSave(uint32_t flag = 0xf0000040);
+    void QuitGame();
 
 };
 

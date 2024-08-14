@@ -41,6 +41,10 @@ void __stdcall MCP::RenderSettings() {
     ImGui::Checkbox("Auto Save", &SaveSettings::auto_save_to_json);
     ImGui::SameLine();
     HelpMarker("Save settings automatically upon game save");
+    ImGui::SameLine();
+    ImGui::Checkbox("Regular Saves", &SaveSettings::regular_saves);
+    ImGui::SameLine();
+    HelpMarker("Regular saves instead of auto saves.");
 
     ImGui::Checkbox("Notifications", &SaveSettings::notifications);
     ImGui::SameLine();
