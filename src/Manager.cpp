@@ -137,6 +137,8 @@ bool Manager::SaveGame(SaveSettings::Scenarios reason) {
         return false;
     }
     if (SaveSettings::block || 
+        RE::PlayerCharacter::GetSingleton()->IsDead() ||
+        RE::PlayerCharacter::GetSingleton()->IsOnMount() ||
         !RE::PlayerCharacter::GetSingleton()->GetParentCell() ||
         RE::PlayerCharacter::GetSingleton()->IsInCombat() ||
         ui->IsMenuOpen(RE::DialogueMenu::MENU_NAME) ||
