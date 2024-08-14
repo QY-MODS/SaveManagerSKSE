@@ -2,7 +2,7 @@
 
 std::map<std::string, std::pair<bool, SaveSettings::Scenarios>> SaveSettings::Menu::Open {
     {std::string(RE::ContainerMenu::MENU_NAME), {false, SaveSettings::Scenarios::MenuOpenContainerMenu}},
-    {std::string(RE::BarterMenu::MENU_NAME), {false, SaveSettings::Scenarios::MenuOpenBarterMenu}},
+    //{std::string(RE::BarterMenu::MENU_NAME), {false, SaveSettings::Scenarios::MenuOpenBarterMenu}},
     {std::string(RE::CraftingMenu::MENU_NAME), {false, SaveSettings::Scenarios::MenuOpenCraftingMenu}},
     {std::string(RE::DialogueMenu::MENU_NAME), {false, SaveSettings::Scenarios::MenuOpenDialogueMenu}},
     {std::string(RE::FavoritesMenu::MENU_NAME), {false, SaveSettings::Scenarios::MenuOpenFavoritesMenu}},
@@ -17,7 +17,7 @@ std::map<std::string, std::pair<bool, SaveSettings::Scenarios>> SaveSettings::Me
 
 std::map<std::string, std::pair<bool,SaveSettings::Scenarios>> SaveSettings::Menu::Close{
     {std::string(RE::ContainerMenu::MENU_NAME), {false, SaveSettings::Scenarios::MenuCloseContainerMenu}},
-    {std::string(RE::BarterMenu::MENU_NAME), {false, SaveSettings::Scenarios::MenuCloseBarterMenu}},
+    //{std::string(RE::BarterMenu::MENU_NAME), {false, SaveSettings::Scenarios::MenuCloseBarterMenu}},
     {std::string(RE::CraftingMenu::MENU_NAME), {false, SaveSettings::Scenarios::MenuCloseCraftingMenu}},
     {std::string(RE::DialogueMenu::MENU_NAME), {false, SaveSettings::Scenarios::MenuCloseDialogueMenu}},
     {std::string(RE::FavoritesMenu::MENU_NAME), {false, SaveSettings::Scenarios::MenuCloseFavoritesMenu}},

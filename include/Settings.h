@@ -56,7 +56,7 @@ namespace SaveSettings {
 
 	enum Scenarios {
 		MenuOpenContainerMenu,
-		MenuOpenBarterMenu,
+		//MenuOpenBarterMenu,
 		MenuOpenCraftingMenu,
 		MenuOpenDialogueMenu,
 		MenuOpenFavoritesMenu,
@@ -66,7 +66,7 @@ namespace SaveSettings {
 		MenuOpenMapMenu,
 
 		MenuCloseContainerMenu,
-        MenuCloseBarterMenu,
+        //MenuCloseBarterMenu,
         MenuCloseCraftingMenu,
         MenuCloseDialogueMenu,
         MenuCloseFavoritesMenu,
@@ -106,7 +106,7 @@ namespace SaveSettings {
 
 	static std::map<Scenarios, std::string> scenario_names = {
         {MenuOpenContainerMenu,"MenuOpenContainerMenu"},
-		{MenuOpenBarterMenu,"MenuOpenBarterMenu"},
+		//{MenuOpenBarterMenu,"MenuOpenBarterMenu"},
 		{MenuOpenCraftingMenu,"MenuOpenCraftingMenu"},
 		{MenuOpenDialogueMenu,"MenuOpenDialogueMenu"},
 		{MenuOpenFavoritesMenu,"MenuOpenFavoritesMenu"},
@@ -116,7 +116,7 @@ namespace SaveSettings {
 		{MenuOpenMapMenu,"MenuOpenMapMenu"},
 
 		{MenuCloseContainerMenu, "MenuCloseContainerMenu"},
-        {MenuCloseBarterMenu, "MenuCloseBarterMenu"},
+        //{MenuCloseBarterMenu, "MenuCloseBarterMenu"},
         {MenuCloseCraftingMenu, "MenuCloseCraftingMenu"},
         {MenuCloseDialogueMenu, "MenuCloseDialogueMenu"},
         {MenuCloseFavoritesMenu, "MenuCloseFavoritesMenu"},

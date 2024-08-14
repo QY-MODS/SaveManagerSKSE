@@ -202,7 +202,7 @@ void MCP::Settings::RenderMenu() {
             ImGui::Text("After");
             ImGui::SameLine();
             std::string input_name = "##" + menu_name;
-            ImGui::SetNextItemWidth(500);
+            ImGui::SetNextItemWidth(250);
             ImGui::InputInt(input_name.c_str(), &setting_after);
             ImGui::SameLine();
             HelpMarker("Seconds to wait after menu is closed before saving");
@@ -237,7 +237,7 @@ void MCP::Settings::RenderSleepWait(){
         ImGui::SetCursorPosX(maxTextWidth + 20);  // Adjust the 20 value to set spacing
         ImGui::Text("After");
         ImGui::SameLine();
-        ImGui::SetNextItemWidth(500);
+        ImGui::SetNextItemWidth(250);
         ImGui::InputInt("##sleep_time", &SaveSettings::SleepWait::sleep_time);
         ImGui::SameLine();
         HelpMarker("Seconds to save after waking up");
@@ -247,7 +247,7 @@ void MCP::Settings::RenderSleepWait(){
         ImGui::SetCursorPosX(maxTextWidth + 20);  // Adjust the 20 value to set spacing
         ImGui::Text("After");
         ImGui::SameLine();
-        ImGui::SetNextItemWidth(500);
+        ImGui::SetNextItemWidth(250);
         ImGui::InputInt("##wait_time", &SaveSettings::SleepWait::wait_time);
         ImGui::SameLine();
         HelpMarker("Seconds to save after waiting");
