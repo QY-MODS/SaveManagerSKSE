@@ -32,10 +32,7 @@ namespace Utilities {
 
 	std::vector<std::string> ReadLogFile();
 
-	namespace Menu {
-        
-		bool IsOpen(const std::string_view menuname);
-	};
+	inline bool GetCombatState() { return RE::PlayerCharacter::GetSingleton()->IsInCombat(); }
 
 	void AutoSave(uint32_t flag = 0xf0000040);
     void QuitGame();

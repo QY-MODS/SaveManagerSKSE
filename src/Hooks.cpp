@@ -46,7 +46,8 @@ void Hooks::Install(){
 };
 
 void Hooks::SaveDebugNotifHook::thunk(const char* a1, uint64_t a2, char a3) {
-    if (_strcmpi(a1, "Autosaving...") == 0 && SaveSettings::block_autosaving_notif) {
+    if ((_strcmpi(a1, "Autosaving...") == 0 || _strcmpi(a1, "Saving...") == 0) &&
+        SaveSettings::block_autosaving_notif) {
         SaveSettings::block_autosaving_notif = false;
         return;
 	}

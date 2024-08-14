@@ -15,6 +15,7 @@ private:
     std::mutex mutex;
 
     std::set<std::pair<int, SaveSettings::Scenarios>, PairFirstComparator> queue;
+    std::map<std::string, unsigned int> time_spent;
     
     void UpdateLoop();
     void Init();

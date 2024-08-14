@@ -1,12 +1,5 @@
 #include "Utils.h"
 
-bool Utilities::Menu::IsOpen(const std::string_view menuname) {
-    if (auto ui = RE::UI::GetSingleton()) {
-        if (ui->IsMenuOpen(menuname)) return true;
-    }
-	return false;
-}
-
 std::filesystem::path Utilities::GetLogPath() {
     auto logsFolder = SKSE::log::log_directory();
     if (!logsFolder) SKSE::stl::report_and_fail("SKSE log_directory not provided, logs disabled.");

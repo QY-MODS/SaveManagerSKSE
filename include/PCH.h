@@ -4,3 +4,5 @@
 
 namespace logger = SKSE::log;
 using namespace std::literals;
+
+using datetime = std::chrono::system_clock;

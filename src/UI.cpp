@@ -82,6 +82,8 @@ void __stdcall MCP::RenderSettings() {
     MCP::Settings::RenderMenu();
 
     MCP::Settings::RenderSleepWait();
+
+    MCP::Settings::RenderCombat();
 };
 
 void MCP::Settings::RenderCollapseExpandAll() {
@@ -120,12 +122,12 @@ void MCP::Settings::RenderTimer(){
         ImGui::SameLine();
         ImGui::Text("Minutes:");
         ImGui::SameLine();
-        ImGui::SetNextItemWidth(200);
+        ImGui::SetNextItemWidth(180);
         ImGui::InputInt("##minutes", &SaveSettings::timer_minutes);
         ImGui::SameLine();
         ImGui::Text("Seconds:");
         ImGui::SameLine();
-        ImGui::SetNextItemWidth(200);
+        ImGui::SetNextItemWidth(180);
         ImGui::InputInt("##timer_seconds", &SaveSettings::timer_seconds);
         ImGui::SameLine();
         if (ImGui::Button("Start##timer")) {
@@ -139,7 +141,7 @@ void MCP::Settings::RenderTimer(){
             SaveSettings::timer_running = false;
         }
         ImGui::SameLine();
-        if (ImGui::Button("Reset")) {
+        if (ImGui::Button("Reset##timer")) {
             if (M->DeleteQueuedSave(SaveSettings::Scenarios::Timer)) {
                 M->QueueSaveGame(SaveSettings::timer_minutes * 60 + SaveSettings::timer_seconds,
                                  SaveSettings::Scenarios::Timer);
@@ -170,16 +172,17 @@ void MCP::Settings::RenderMenu() {
     if (!headerStates["Menu"]) ImGui::SetNextItemOpen(false);
     else ImGui::SetNextItemOpen(true);
     if (ImGui::CollapsingHeader("Menu", ImGuiTreeNodeFlags_DefaultOpen)) {
-        if (ImGui::Button("Reset All")) {
+        if (ImGui::Button("Reset All##Menu")) {
             for (auto& [menu_name, _] : SaveSettings::Menu::Open) {
 			    SaveSettings::Menu::Open[menu_name].first = false;
 			    SaveSettings::Menu::Close[menu_name].first = false;
-			    SaveSettings::Menu::After[menu_name] = 0;
+			    SaveSettings::Menu::After[menu_name] = 4;
+                SaveSettings::Menu::MinTimeSpent[menu_name] = 10;
 		    }
         }
         headerStates["Menu"] = true;
 
-        float maxTextWidth = 200.0f;
+        float maxTextWidth = 180.0f;
         //for (const auto& [menu_name, _] : SaveSettings::Menu::Open) {
             //maxTextWidth = std::max(maxTextWidth, ImGui::CalcTextSize(menu_name.c_str()).x);
         //}
@@ -188,6 +191,7 @@ void MCP::Settings::RenderMenu() {
             bool setting_open = SaveSettings::Menu::Open[menu_name].first;
             bool setting_close = SaveSettings::Menu::Close[menu_name].first;
             int setting_after = SaveSettings::Menu::After[menu_name];
+            int setting_time_spent = SaveSettings::Menu::MinTimeSpent[menu_name];
             
             ImGui::Text(menu_name.c_str());
             ImGui::SameLine();
@@ -202,14 +206,25 @@ void MCP::Settings::RenderMenu() {
             ImGui::Text("After");
             ImGui::SameLine();
             std::string input_name = "##" + menu_name;
-            ImGui::SetNextItemWidth(250);
+            ImGui::SetNextItemWidth(180);
             ImGui::InputInt(input_name.c_str(), &setting_after);
             ImGui::SameLine();
             HelpMarker("Seconds to wait after menu is closed before saving");
+
+            // add text with field for minimum time spent in the menu before saving
+            ImGui::SameLine();
+            ImGui::Text("Min. Time Spent");
+            ImGui::SameLine();
+            std::string input_name_time_spent = "##" + menu_name + "_time_spent";
+            ImGui::SetNextItemWidth(180);
+            ImGui::InputInt(input_name_time_spent.c_str(), &setting_time_spent);
+            ImGui::SameLine();
+            HelpMarker("Minimum time spent (seconds) in the menu before saving after closing");
             
             SaveSettings::Menu::Open[menu_name].first = setting_open;
             SaveSettings::Menu::Close[menu_name].first = setting_close;
             SaveSettings::Menu::After[menu_name] = setting_after;
+            SaveSettings::Menu::MinTimeSpent[menu_name] = setting_time_spent;
         };
     } else headerStates["Menu"] = false;
 }
@@ -219,7 +234,7 @@ void MCP::Settings::RenderSleepWait(){
     if (!headerStates["SleepWait"]) ImGui::SetNextItemOpen(false);
     else ImGui::SetNextItemOpen(true);
     if (ImGui::CollapsingHeader("Sleep/Wait", ImGuiTreeNodeFlags_DefaultOpen)) {
-        if (ImGui::Button("Reset All")) {
+        if (ImGui::Button("Reset All##sleepwait")) {
 			SaveSettings::SleepWait::sleep = false;
 			SaveSettings::SleepWait::wait = false;
 			SaveSettings::SleepWait::sleep_time = 0;
@@ -227,7 +242,7 @@ void MCP::Settings::RenderSleepWait(){
         }
         headerStates["SleepWait"] = true;
 
-        float maxTextWidth = 200.0f;
+        float maxTextWidth = 180.0f;
         //for (const auto& temp_name : {"Sleep", "Wait"}) {
             //maxTextWidth = std::max(maxTextWidth, ImGui::CalcTextSize(temp_name).x);
         //}
@@ -237,7 +252,7 @@ void MCP::Settings::RenderSleepWait(){
         ImGui::SetCursorPosX(maxTextWidth + 20);  // Adjust the 20 value to set spacing
         ImGui::Text("After");
         ImGui::SameLine();
-        ImGui::SetNextItemWidth(250);
+        ImGui::SetNextItemWidth(180);
         ImGui::InputInt("##sleep_time", &SaveSettings::SleepWait::sleep_time);
         ImGui::SameLine();
         HelpMarker("Seconds to save after waking up");
@@ -247,12 +262,66 @@ void MCP::Settings::RenderSleepWait(){
         ImGui::SetCursorPosX(maxTextWidth + 20);  // Adjust the 20 value to set spacing
         ImGui::Text("After");
         ImGui::SameLine();
-        ImGui::SetNextItemWidth(250);
+        ImGui::SetNextItemWidth(180);
         ImGui::InputInt("##wait_time", &SaveSettings::SleepWait::wait_time);
         ImGui::SameLine();
         HelpMarker("Seconds to save after waiting");
     } else headerStates["SleepWait"] = false;
     
+}
+void MCP::Settings::RenderCombat(){
+    if (!headerStates["Combat"]) ImGui::SetNextItemOpen(false);
+    else ImGui::SetNextItemOpen(true);
+    if (ImGui::CollapsingHeader("Combat##header", ImGuiTreeNodeFlags_DefaultOpen)) {
+        if (ImGui::Button("Reset All##Combat")) {
+            SaveSettings::Combat::entering_combat = false;
+            SaveSettings::Combat::exiting_combat = false;
+            SaveSettings::Combat::combat_time = 0;
+            SaveSettings::Combat::min_combat_time_exit = 0;
+        }
+        headerStates["Combat"] = true;
+
+        float maxTextWidth = 180.0f;
+
+        bool setting_open = SaveSettings::Combat::entering_combat;
+        bool setting_close = SaveSettings::Combat::exiting_combat;
+        int setting_after = SaveSettings::Combat::combat_time;
+        int setting_time_spent = SaveSettings::Combat::min_combat_time_exit;
+
+        std::string menu_name = "CombatEvents";
+        ImGui::Text(menu_name.c_str());
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(maxTextWidth + 20);  // Adjust the 20 value to set spacing
+        std::string checkbox_name_open = "Enter##" + menu_name;
+        ImGui::Checkbox(checkbox_name_open.c_str(), &setting_open);
+        ImGui::SameLine();
+        std::string checkbox_name_close = "Exit##" + menu_name;
+        ImGui::Checkbox(checkbox_name_close.c_str(), &setting_close);
+        // add text with field for seconds to wait after menu is closed
+        ImGui::SameLine();
+        ImGui::Text("After");
+        ImGui::SameLine();
+        std::string input_name = "##" + menu_name;
+        ImGui::SetNextItemWidth(180);
+        ImGui::InputInt(input_name.c_str(), &setting_after);
+        ImGui::SameLine();
+        HelpMarker("Seconds to wait after leaving combat before saving");
+
+        // add text with field for minimum time spent in the menu before saving
+        ImGui::SameLine();
+        ImGui::Text("Min. Time Spent");
+        ImGui::SameLine();
+        std::string input_name_time_spent = "##" + menu_name + "_time_spent";
+        ImGui::SetNextItemWidth(180);
+        ImGui::InputInt(input_name_time_spent.c_str(), &setting_time_spent);
+        ImGui::SameLine();
+        HelpMarker("Minimum time spent (seconds) in combat before saving after exiting");
+
+        SaveSettings::Combat::entering_combat = setting_open;
+        SaveSettings::Combat::exiting_combat = setting_close;
+        SaveSettings::Combat::combat_time = setting_after;
+        SaveSettings::Combat::min_combat_time_exit = setting_time_spent;
+    } else headerStates["Combat"] = false;
 };
 
 void __stdcall MCP::RenderStatus(){

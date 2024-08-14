@@ -79,6 +79,9 @@ namespace SaveSettings {
 
 		SleepWaitStop,
 
+		CombatEnter,
+		CombatExit,
+
 		QuitGame,
 
 	};
@@ -89,7 +92,9 @@ namespace SaveSettings {
 
 		extern std::map<std::string, std::pair<bool, Scenarios>> Close;
 
-		extern std::map<std::string, int> After; // after menu is closed, wait x seconds before saving
+		extern std::map < std::string, int> After;  // after menu is closed, wait x seconds before saving
+
+		extern std::map<std::string, int> MinTimeSpent;  // min. time spent in the menu before saving
 
 		rapidjson::Value to_json(Document::AllocatorType& a);
 
@@ -100,6 +105,15 @@ namespace SaveSettings {
 		inline bool wait = false;
 		inline int sleep_time = 0; // save after in seconds
 		inline int wait_time = 0; // save after in seconds
+
+		rapidjson::Value to_json(Document::AllocatorType& a);
+	};
+
+	namespace Combat {
+		inline bool entering_combat = false;
+		inline bool exiting_combat = false;
+		inline int combat_time = 0; // save after in seconds
+		inline int min_combat_time_exit = 0; // min. time spent before save in seconds
 
 		rapidjson::Value to_json(Document::AllocatorType& a);
 	};
@@ -127,7 +141,10 @@ namespace SaveSettings {
 
 		{Timer,"Timer"},
 
-		{SleepWaitStop, "SleepWaitStop"}
+		{SleepWaitStop, "SleepWaitStop"},
+
+		{CombatEnter, "CombatEnter"},
+		{CombatExit, "CombatExit"},
     };
 };
 

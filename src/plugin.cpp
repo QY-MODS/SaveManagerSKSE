@@ -20,6 +20,7 @@ void OnMessage(SKSE::MessagingInterface::Message* message) {
         RE::UI::GetSingleton()->AddEventSink<RE::MenuOpenCloseEvent>(eventSink);
         eventSourceHolder->AddEventSink<RE::TESSleepStopEvent>(eventSink);
         eventSourceHolder->AddEventSink<RE::TESWaitStopEvent>(eventSink);
+        eventSourceHolder->AddEventSink<RE::TESCombatEvent>(eventSink);
         logger::info("Event sinks added.");
 
         // MCP

@@ -37,25 +37,47 @@ std::map<std::string, std::pair<bool,SaveSettings::Scenarios>> SaveSettings::Men
 //};
 
 std::map<std::string, int> SaveSettings::Menu::After = {
-    {std::string(RE::ContainerMenu::MENU_NAME), 0},
-    {std::string(RE::BarterMenu::MENU_NAME), 0},
-    {std::string(RE::CraftingMenu::MENU_NAME), 0},
-    {std::string(RE::DialogueMenu::MENU_NAME), 0},
-    {std::string(RE::FavoritesMenu::MENU_NAME), 0},
-    {std::string(RE::GiftMenu::MENU_NAME), 0},
-    {std::string(RE::InventoryMenu::MENU_NAME), 0},
-    {std::string(RE::JournalMenu::MENU_NAME), 0},
-    {std::string(RE::LevelUpMenu::MENU_NAME), 0},
-    {std::string(RE::LockpickingMenu::MENU_NAME), 0},
-    {std::string(RE::MagicMenu::MENU_NAME), 0},
-    {std::string(RE::MapMenu::MENU_NAME), 0},
-    {std::string(RE::MessageBoxMenu::MENU_NAME), 0},
-    {std::string(RE::SleepWaitMenu::MENU_NAME), 0},
-    {std::string(RE::StatsMenu::MENU_NAME), 0},
-    {std::string(RE::TrainingMenu::MENU_NAME), 0},
-    {std::string(RE::TutorialMenu::MENU_NAME), 0},
-    {std::string(RE::TweenMenu::MENU_NAME), 0},
-    {std::string(RE::Console::MENU_NAME), 0},
+    {std::string(RE::ContainerMenu::MENU_NAME), 4},
+    {std::string(RE::BarterMenu::MENU_NAME), 4},
+    {std::string(RE::CraftingMenu::MENU_NAME), 4},
+    {std::string(RE::DialogueMenu::MENU_NAME), 4},
+    {std::string(RE::FavoritesMenu::MENU_NAME), 4},
+    {std::string(RE::GiftMenu::MENU_NAME), 4},
+    {std::string(RE::InventoryMenu::MENU_NAME), 4},
+    {std::string(RE::JournalMenu::MENU_NAME), 4},
+    {std::string(RE::LevelUpMenu::MENU_NAME), 4},
+    {std::string(RE::LockpickingMenu::MENU_NAME), 4},
+    {std::string(RE::MagicMenu::MENU_NAME), 4},
+    {std::string(RE::MapMenu::MENU_NAME), 4},
+    {std::string(RE::MessageBoxMenu::MENU_NAME), 4},
+    {std::string(RE::SleepWaitMenu::MENU_NAME), 4},
+    {std::string(RE::StatsMenu::MENU_NAME), 4},
+    {std::string(RE::TrainingMenu::MENU_NAME), 4},
+    {std::string(RE::TutorialMenu::MENU_NAME), 4},
+    {std::string(RE::TweenMenu::MENU_NAME), 4},
+    {std::string(RE::Console::MENU_NAME), 4},
+};
+
+std::map<std::string, int> SaveSettings::Menu::MinTimeSpent = {
+    {std::string(RE::ContainerMenu::MENU_NAME), 10},
+    {std::string(RE::BarterMenu::MENU_NAME), 10},
+    {std::string(RE::CraftingMenu::MENU_NAME), 10},
+    {std::string(RE::DialogueMenu::MENU_NAME), 10},
+    {std::string(RE::FavoritesMenu::MENU_NAME), 10},
+    {std::string(RE::GiftMenu::MENU_NAME), 10},
+    {std::string(RE::InventoryMenu::MENU_NAME), 10},
+    {std::string(RE::JournalMenu::MENU_NAME), 10},
+    {std::string(RE::LevelUpMenu::MENU_NAME), 10},
+    {std::string(RE::LockpickingMenu::MENU_NAME), 10},
+    {std::string(RE::MagicMenu::MENU_NAME), 10},
+    {std::string(RE::MapMenu::MENU_NAME), 10},
+    {std::string(RE::MessageBoxMenu::MENU_NAME), 10},
+    {std::string(RE::SleepWaitMenu::MENU_NAME), 10},
+    {std::string(RE::StatsMenu::MENU_NAME), 10},
+    {std::string(RE::TrainingMenu::MENU_NAME), 10},
+    {std::string(RE::TutorialMenu::MENU_NAME), 10},
+    {std::string(RE::TweenMenu::MENU_NAME), 10},
+    {std::string(RE::Console::MENU_NAME), 10},
 };
 
 void SaveSettings::SaveJSON() {
@@ -77,6 +99,7 @@ void SaveSettings::SaveJSON() {
     doc.AddMember("timer", SaveSettings::to_json_timer_stuff(allocator), allocator);
     doc.AddMember("menu", SaveSettings::Menu::to_json(allocator), allocator);
     doc.AddMember("sleep_wait", SaveSettings::SleepWait::to_json(allocator), allocator);
+    doc.AddMember("combat", SaveSettings::Combat::to_json(allocator), allocator);
     
 
     // Convert JSON document to string
@@ -193,6 +216,17 @@ void SaveSettings::LoadJSON(){
 		}
 	}
 
+    if (menu.HasMember("MinTimeSpent") && menu["MinTimeSpent"].IsObject()) {
+        const auto& min_time_spent = menu["MinTimeSpent"];
+        for (auto it = min_time_spent.MemberBegin(); it != min_time_spent.MemberEnd(); ++it) {
+            const std::string name = it->name.GetString();
+            if (SaveSettings::Menu::MinTimeSpent.find(name) != SaveSettings::Menu::MinTimeSpent.end()) {
+                const auto& value = it->value;
+                if (value.IsInt()) SaveSettings::Menu::MinTimeSpent[name] = value.GetInt();
+            }
+        }
+    }
+
 	// SleepWait
 	const auto& sleep_wait = doc["sleep_wait"];
     if (sleep_wait.HasMember("sleep") && sleep_wait["sleep"].IsBool()) SleepWait::sleep = sleep_wait["sleep"].GetBool();
@@ -200,8 +234,14 @@ void SaveSettings::LoadJSON(){
 	if (sleep_wait.HasMember("sleep_time") && sleep_wait["sleep_time"].IsInt()) SleepWait::sleep_time = sleep_wait["sleep_time"].GetInt();
 	if (sleep_wait.HasMember("wait_time") && sleep_wait["wait_time"].IsInt()) SleepWait::wait_time = sleep_wait["wait_time"].GetInt();
 
-	logger::info("Settings loaded successfully.");
+    // Combat
+    const auto& combat = doc["combat"];
+    if (combat.HasMember("enter") && combat["enter"].IsBool()) Combat::entering_combat = combat["enter"].GetBool();
+    if (combat.HasMember("exit") && combat["exit"].IsBool()) Combat::exiting_combat = combat["exit"].GetBool();
+    if (combat.HasMember("combat_time") && combat["combat_time"].IsInt()) Combat::combat_time = combat["combat_time"].GetInt();
+    if (combat.HasMember("min_combat_time_exit") && combat["min_combat_time_exit"].IsInt()) Combat::min_combat_time_exit = combat["min_combat_time_exit"].GetInt();
 
+	logger::info("Settings loaded successfully.");
 
 }
 uint32_t SaveSettings::GetSaveFlag() { return regular_saves ? 0xf0000080 : 0xf0000040; }
@@ -260,6 +300,13 @@ rapidjson::Value SaveSettings::Menu::to_json(Document::AllocatorType& a){
         after.AddMember(rapidjson::Value().SetString(name.c_str(), name.size(), a), value, a);
     }
     menu.AddMember("After", after, a);
+
+    // MinTimeSpent
+    rapidjson::Value min_time_spent(rapidjson::kObjectType);
+    for (auto& [name, value] : MinTimeSpent) {
+		min_time_spent.AddMember(rapidjson::Value().SetString(name.c_str(), name.size(), a), value, a);
+	}
+    menu.AddMember("MinTimeSpent", min_time_spent, a);
     
     return menu;
 }
@@ -271,4 +318,15 @@ rapidjson::Value SaveSettings::SleepWait::to_json(Document::AllocatorType& a){
     sleep_wait.AddMember("sleep_time", sleep_time, a);
     sleep_wait.AddMember("wait_time", wait_time, a);
     return sleep_wait;
+};
+
+rapidjson::Value SaveSettings::Combat::to_json(Document::AllocatorType& a){
+
+    Value combat(kObjectType);
+    combat.AddMember("enter", entering_combat, a);
+    combat.AddMember("exit", exiting_combat, a);
+    combat.AddMember("combat_time", combat_time, a);
+    combat.AddMember("min_combat_time_exit", min_combat_time_exit, a);
+    return combat;
+
 };

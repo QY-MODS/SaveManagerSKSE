@@ -6,8 +6,8 @@ class ourEventSink : public RE::BSTEventSink<RE::TESContainerChangedEvent>,
                      public RE::BSTEventSink<RE::TESFurnitureEvent>,
                      public RE::BSTEventSink<RE::MenuOpenCloseEvent>,
                      public RE::BSTEventSink<RE::TESSleepStopEvent>,
-                     public RE::BSTEventSink<RE::TESWaitStopEvent>
-{
+                     public RE::BSTEventSink<RE::TESWaitStopEvent>,
+                     public RE::BSTEventSink<RE::TESCombatEvent> {
 public:
 
     ourEventSink() = default;
@@ -36,10 +36,16 @@ public:
 
     RE::BSEventNotifyControl ProcessEvent(const RE::TESWaitStopEvent* event, RE::BSTEventSource<RE::TESWaitStopEvent>*);
 
+    RE::BSEventNotifyControl ProcessEvent(const RE::TESCombatEvent* event, RE::BSTEventSource<RE::TESCombatEvent>*);
+
 
 
 private:
     Manager* M = nullptr;
+
+    std::map<std::string, datetime::time_point> menu_times;
+
+    bool in_combat = false;
 
     ourEventSink(Manager* manager) : M(manager){ 
         if (SaveSettings::timer_periodic && SaveSettings::timer_running) {
