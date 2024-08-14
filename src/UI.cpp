@@ -84,6 +84,8 @@ void __stdcall MCP::RenderSettings() {
     MCP::Settings::RenderSleepWait();
 
     MCP::Settings::RenderCombat();
+
+    MCP::Settings::RenderMisc();
 };
 
 void MCP::Settings::RenderCollapseExpandAll() {
@@ -322,6 +324,49 @@ void MCP::Settings::RenderCombat(){
         SaveSettings::Combat::combat_time = setting_after;
         SaveSettings::Combat::min_combat_time_exit = setting_time_spent;
     } else headerStates["Combat"] = false;
+}
+void MCP::Settings::RenderMisc(){
+    if (!headerStates["Misc"])
+        ImGui::SetNextItemOpen(false);
+    else
+        ImGui::SetNextItemOpen(true);
+    if (ImGui::CollapsingHeader("Misc##header", ImGuiTreeNodeFlags_DefaultOpen)) {
+        if (ImGui::Button("Reset All##Misc")) {
+            SaveSettings::Other::save_on_level_up = false;
+        }
+        headerStates["Misc"] = true;
+
+        float maxTextWidth = 180.0f;
+
+        ImGui::Text("LevelUp");
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(maxTextWidth + 20);  // Adjust the 20 value to set spacing
+        ImGui::Checkbox("##LevelUpCheckBox", &SaveSettings::Other::save_on_level_up);
+        ImGui::SameLine();
+        HelpMarker("Save on level up");
+
+        ImGui::Text("SkillUp");
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(maxTextWidth + 20);  // Adjust the 20 value to set spacing
+        ImGui::Checkbox("##SkillUpCheckBox", &SaveSettings::Other::save_on_skill_up);
+        ImGui::SameLine();
+        HelpMarker("Save when a skill's point increases");
+
+        ImGui::Text("QuestComplete");
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(maxTextWidth + 20);  // Adjust the 20 value to set spacing
+        ImGui::Checkbox("##QuestCompleteCheckBox", &SaveSettings::Other::save_on_quest_complete);
+        ImGui::SameLine();
+        HelpMarker("Save when a quest is completed");
+
+        ImGui::Text("LocationDiscover");
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(maxTextWidth + 20);  // Adjust the 20 value to set spacing
+        ImGui::Checkbox("##LocationDiscoverCheckBox", &SaveSettings::Other::save_on_location_discover);
+        ImGui::SameLine();
+        HelpMarker("Save when a location is discovered");
+
+    } else headerStates["Misc"] = false;
 };
 
 void __stdcall MCP::RenderStatus(){

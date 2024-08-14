@@ -91,3 +91,26 @@ RE::BSEventNotifyControl ourEventSink::ProcessEvent(const RE::TESCombatEvent* ev
     
     return RE::BSEventNotifyControl::kContinue;
 }
+
+RE::BSEventNotifyControl ourEventSink::ProcessEvent(const RE::TESTrackedStatsEvent* event,
+                                                    RE::BSTEventSource<RE::TESTrackedStatsEvent>*) {
+    if (!event) return RE::BSEventNotifyControl::kContinue;
+    
+    logger::info("stat: {}", event->stat.c_str());
+    logger::info("stat value: {}", event->value);
+
+    if (_strcmpi(event->stat.c_str(), "Level Increases") == 0 && SaveSettings::Other::save_on_level_up) {
+        M->QueueSaveGame(SaveSettings::queue_delay, SaveSettings::Scenarios::LevelUp);
+    } 
+    else if (_strcmpi(event->stat.c_str(), "Skill Increases") == 0 && SaveSettings::Other::save_on_skill_up) {
+        M->QueueSaveGame(SaveSettings::queue_delay, SaveSettings::Scenarios::SkillUp);
+    } 
+    else if (_strcmpi(event->stat.c_str(), "Quests Completed") == 0 && SaveSettings::Other::save_on_quest_complete) {
+        M->QueueSaveGame(SaveSettings::queue_delay, SaveSettings::Scenarios::QuestComplete);
+    } 
+    else if (_strcmpi(event->stat.c_str(), "Locations Discovered") == 0 && SaveSettings::Other::save_on_location_discover) {
+        M->QueueSaveGame(SaveSettings::queue_delay, SaveSettings::Scenarios::LocationDiscover);
+    }
+    
+    return RE::BSEventNotifyControl::kContinue;
+}

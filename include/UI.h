@@ -12,7 +12,11 @@ namespace MCP {
     inline std::vector<std::string> logLines;
 
 	inline std::unordered_map<std::string, bool> headerStates;
-    inline std::vector header_names = {"Menu", "SleepWait", "Combat"};
+    inline std::vector header_names = {"Menu", 
+		"SleepWait", 
+		"Combat", 
+		"Misc",
+	};
 
 	void Register(Manager* manager);
 
@@ -27,6 +31,7 @@ namespace MCP {
 
 		void RenderSleepWait();
 		void RenderCombat();
+        void RenderMisc();
 
 	};
 };

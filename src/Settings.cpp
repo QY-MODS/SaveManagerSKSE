@@ -100,6 +100,7 @@ void SaveSettings::SaveJSON() {
     doc.AddMember("menu", SaveSettings::Menu::to_json(allocator), allocator);
     doc.AddMember("sleep_wait", SaveSettings::SleepWait::to_json(allocator), allocator);
     doc.AddMember("combat", SaveSettings::Combat::to_json(allocator), allocator);
+    doc.AddMember("other", SaveSettings::Other::to_json(allocator), allocator);
     
 
     // Convert JSON document to string
@@ -166,82 +167,98 @@ void SaveSettings::LoadJSON(){
 	}
 
 	// Main
-	const auto& main = doc["main"];
-	if (main.HasMember("block") && main["block"].IsBool()) block = main["block"].GetBool();
-	if (main.HasMember("queue_delay") && main["queue_delay"].IsInt()) queue_delay = main["queue_delay"].GetInt();
-	if (main.HasMember("ticker_interval") && main["ticker_interval"].IsInt()) ticker_interval = main["ticker_interval"].GetInt();
-	if (main.HasMember("notifications") && main["notifications"].IsBool()) notifications = main["notifications"].GetBool();
-
-	// Timer
-	const auto& timer = doc["timer"];
-	if (timer.HasMember("timer_minutes") && timer["timer_minutes"].IsInt()) timer_minutes = timer["timer_minutes"].GetInt();
-	if (timer.HasMember("timer_seconds") && timer["timer_seconds"].IsInt()) timer_seconds = timer["timer_seconds"].GetInt();
-	if (timer.HasMember("timer_running") && timer["timer_running"].IsBool()) timer_running = timer["timer_running"].GetBool();
-	if (timer.HasMember("timer_periodic") && timer["timer_periodic"].IsBool()) timer_periodic = timer["timer_periodic"].GetBool();
-	if (timer.HasMember("close_game_warning") && timer["close_game_warning"].IsBool()) close_game_warning = timer["close_game_warning"].GetBool();
-
-    // Menu
-    const auto& menu = doc["menu"];
-    if (menu.HasMember("Open") && menu["Open"].IsObject()) {
-		const auto& open = menu["Open"];
-		for (auto it = open.MemberBegin(); it != open.MemberEnd(); ++it) {
-			const std::string name = it->name.GetString();
-			if (SaveSettings::Menu::Open.find(name) != SaveSettings::Menu::Open.end()) {
-				const auto& value = it->value;
-				if (value.HasMember("enabled") && value["enabled"].IsBool()) SaveSettings::Menu::Open[name].first = value["enabled"].GetBool();
-				if (value.HasMember("scenario") && value["scenario"].IsInt()) SaveSettings::Menu::Open[name].second = static_cast<SaveSettings::Scenarios>(value["scenario"].GetInt());
-			}
-		}
-	}
-    if (menu.HasMember("Close") && menu["Close"].IsObject()) {
-        const auto& close = menu["Close"];
-        for (auto it = close.MemberBegin(); it != close.MemberEnd(); ++it) {
-			const std::string name = it->name.GetString();
-			if (SaveSettings::Menu::Close.find(name) != SaveSettings::Menu::Close.end()) {
-				const auto& value = it->value;
-				if (value.HasMember("enabled") && value["enabled"].IsBool()) SaveSettings::Menu::Close[name].first = value["enabled"].GetBool();
-				if (value.HasMember("scenario") && value["scenario"].IsInt()) SaveSettings::Menu::Close[name].second = static_cast<SaveSettings::Scenarios>(value["scenario"].GetInt());
-			}
-		}
+    if (doc.HasMember("main")) {
+	    const auto& main = doc["main"];
+	    if (main.HasMember("block") && main["block"].IsBool()) block = main["block"].GetBool();
+	    if (main.HasMember("queue_delay") && main["queue_delay"].IsInt()) queue_delay = main["queue_delay"].GetInt();
+	    if (main.HasMember("ticker_interval") && main["ticker_interval"].IsInt()) ticker_interval = main["ticker_interval"].GetInt();
+	    if (main.HasMember("notifications") && main["notifications"].IsBool()) notifications = main["notifications"].GetBool();
     }
 
-	if (menu.HasMember("After") && menu["After"].IsObject()) {
-		const auto& after = menu["After"];
-		for (auto it = after.MemberBegin(); it != after.MemberEnd(); ++it) {
-			const std::string name = it->name.GetString();
-			if (SaveSettings::Menu::After.find(name) != SaveSettings::Menu::After.end()) {
-				const auto& value = it->value;
-				if (value.IsInt()) SaveSettings::Menu::After[name] = value.GetInt();
-			}
-		}
-	}
+	// Timer
+    if (doc.HasMember("timer")) {
+	    const auto& timer = doc["timer"];
+	    if (timer.HasMember("timer_minutes") && timer["timer_minutes"].IsInt()) timer_minutes = timer["timer_minutes"].GetInt();
+	    if (timer.HasMember("timer_seconds") && timer["timer_seconds"].IsInt()) timer_seconds = timer["timer_seconds"].GetInt();
+	    if (timer.HasMember("timer_running") && timer["timer_running"].IsBool()) timer_running = timer["timer_running"].GetBool();
+	    if (timer.HasMember("timer_periodic") && timer["timer_periodic"].IsBool()) timer_periodic = timer["timer_periodic"].GetBool();
+	    if (timer.HasMember("close_game_warning") && timer["close_game_warning"].IsBool()) close_game_warning = timer["close_game_warning"].GetBool();
+    }
+    // Menu
+    if (doc.HasMember("menu")) {
+        const auto& menu = doc["menu"];
+        if (menu.HasMember("Open") && menu["Open"].IsObject()) {
+		    const auto& open = menu["Open"];
+		    for (auto it = open.MemberBegin(); it != open.MemberEnd(); ++it) {
+			    const std::string name = it->name.GetString();
+			    if (SaveSettings::Menu::Open.find(name) != SaveSettings::Menu::Open.end()) {
+				    const auto& value = it->value;
+				    if (value.HasMember("enabled") && value["enabled"].IsBool()) SaveSettings::Menu::Open[name].first = value["enabled"].GetBool();
+				    if (value.HasMember("scenario") && value["scenario"].IsInt()) SaveSettings::Menu::Open[name].second = static_cast<SaveSettings::Scenarios>(value["scenario"].GetInt());
+			    }
+		    }
+	    }
+        if (menu.HasMember("Close") && menu["Close"].IsObject()) {
+            const auto& close = menu["Close"];
+            for (auto it = close.MemberBegin(); it != close.MemberEnd(); ++it) {
+			    const std::string name = it->name.GetString();
+			    if (SaveSettings::Menu::Close.find(name) != SaveSettings::Menu::Close.end()) {
+				    const auto& value = it->value;
+				    if (value.HasMember("enabled") && value["enabled"].IsBool()) SaveSettings::Menu::Close[name].first = value["enabled"].GetBool();
+				    if (value.HasMember("scenario") && value["scenario"].IsInt()) SaveSettings::Menu::Close[name].second = static_cast<SaveSettings::Scenarios>(value["scenario"].GetInt());
+			    }
+		    }
+        }
 
-    if (menu.HasMember("MinTimeSpent") && menu["MinTimeSpent"].IsObject()) {
-        const auto& min_time_spent = menu["MinTimeSpent"];
-        for (auto it = min_time_spent.MemberBegin(); it != min_time_spent.MemberEnd(); ++it) {
-            const std::string name = it->name.GetString();
-            if (SaveSettings::Menu::MinTimeSpent.find(name) != SaveSettings::Menu::MinTimeSpent.end()) {
-                const auto& value = it->value;
-                if (value.IsInt()) SaveSettings::Menu::MinTimeSpent[name] = value.GetInt();
+	    if (menu.HasMember("After") && menu["After"].IsObject()) {
+		    const auto& after = menu["After"];
+		    for (auto it = after.MemberBegin(); it != after.MemberEnd(); ++it) {
+			    const std::string name = it->name.GetString();
+			    if (SaveSettings::Menu::After.find(name) != SaveSettings::Menu::After.end()) {
+				    const auto& value = it->value;
+				    if (value.IsInt()) SaveSettings::Menu::After[name] = value.GetInt();
+			    }
+		    }
+	    }
+
+        if (menu.HasMember("MinTimeSpent") && menu["MinTimeSpent"].IsObject()) {
+            const auto& min_time_spent = menu["MinTimeSpent"];
+            for (auto it = min_time_spent.MemberBegin(); it != min_time_spent.MemberEnd(); ++it) {
+                const std::string name = it->name.GetString();
+                if (SaveSettings::Menu::MinTimeSpent.find(name) != SaveSettings::Menu::MinTimeSpent.end()) {
+                    const auto& value = it->value;
+                    if (value.IsInt()) SaveSettings::Menu::MinTimeSpent[name] = value.GetInt();
+                }
             }
         }
     }
 
 	// SleepWait
-	const auto& sleep_wait = doc["sleep_wait"];
-    if (sleep_wait.HasMember("sleep") && sleep_wait["sleep"].IsBool()) SleepWait::sleep = sleep_wait["sleep"].GetBool();
-    if (sleep_wait.HasMember("wait") && sleep_wait["wait"].IsBool()) SleepWait::wait = sleep_wait["wait"].GetBool();
-	if (sleep_wait.HasMember("sleep_time") && sleep_wait["sleep_time"].IsInt()) SleepWait::sleep_time = sleep_wait["sleep_time"].GetInt();
-	if (sleep_wait.HasMember("wait_time") && sleep_wait["wait_time"].IsInt()) SleepWait::wait_time = sleep_wait["wait_time"].GetInt();
-
+    if (doc.HasMember("sleep_wait")) {
+	    const auto& sleep_wait = doc["sleep_wait"];
+        if (sleep_wait.HasMember("sleep") && sleep_wait["sleep"].IsBool()) SleepWait::sleep = sleep_wait["sleep"].GetBool();
+        if (sleep_wait.HasMember("wait") && sleep_wait["wait"].IsBool()) SleepWait::wait = sleep_wait["wait"].GetBool();
+	    if (sleep_wait.HasMember("sleep_time") && sleep_wait["sleep_time"].IsInt()) SleepWait::sleep_time = sleep_wait["sleep_time"].GetInt();
+	    if (sleep_wait.HasMember("wait_time") && sleep_wait["wait_time"].IsInt()) SleepWait::wait_time = sleep_wait["wait_time"].GetInt();
+    }
     // Combat
-    const auto& combat = doc["combat"];
-    if (combat.HasMember("enter") && combat["enter"].IsBool()) Combat::entering_combat = combat["enter"].GetBool();
-    if (combat.HasMember("exit") && combat["exit"].IsBool()) Combat::exiting_combat = combat["exit"].GetBool();
-    if (combat.HasMember("combat_time") && combat["combat_time"].IsInt()) Combat::combat_time = combat["combat_time"].GetInt();
-    if (combat.HasMember("min_combat_time_exit") && combat["min_combat_time_exit"].IsInt()) Combat::min_combat_time_exit = combat["min_combat_time_exit"].GetInt();
-
-	logger::info("Settings loaded successfully.");
+    if (doc.HasMember("combat")) {
+        const auto& combat = doc["combat"];
+        if (combat.HasMember("enter") && combat["enter"].IsBool()) Combat::entering_combat = combat["enter"].GetBool();
+        if (combat.HasMember("exit") && combat["exit"].IsBool()) Combat::exiting_combat = combat["exit"].GetBool();
+        if (combat.HasMember("combat_time") && combat["combat_time"].IsInt()) Combat::combat_time = combat["combat_time"].GetInt();
+        if (combat.HasMember("min_combat_time_exit") && combat["min_combat_time_exit"].IsInt()) Combat::min_combat_time_exit = combat["min_combat_time_exit"].GetInt();
+    }
+    // Other
+    if (doc.HasMember("other")) {
+        const auto& other = doc["other"];
+        if (other.HasMember("save_on_level_up") && other["save_on_level_up"].IsBool()) Other::save_on_level_up = other["save_on_level_up"].GetBool();
+        if (other.HasMember("save_on_skill_up") && other["save_on_skill_up"].IsBool()) Other::save_on_skill_up = other["save_on_skill_up"].GetBool();
+        if (other.HasMember("save_on_quest_complete") && other["save_on_quest_complete"].IsBool()) Other::save_on_quest_complete = other["save_on_quest_complete"].GetBool();
+        if (other.HasMember("save_on_location_discover") && other["save_on_location_discover"].IsBool()) Other::save_on_location_discover = other["save_on_location_discover"].GetBool();
+    }
+	
+    logger::info("Settings loaded successfully.");
 
 }
 uint32_t SaveSettings::GetSaveFlag() { return regular_saves ? 0xf0000080 : 0xf0000040; }
@@ -329,4 +346,13 @@ rapidjson::Value SaveSettings::Combat::to_json(Document::AllocatorType& a){
     combat.AddMember("min_combat_time_exit", min_combat_time_exit, a);
     return combat;
 
+};
+
+rapidjson::Value SaveSettings::Other::to_json(Document::AllocatorType& a) { 
+    Value other(kObjectType);
+    other.AddMember("save_on_level_up", save_on_level_up, a);
+    other.AddMember("save_on_skill_up", save_on_skill_up, a);
+    other.AddMember("save_on_quest_complete", save_on_quest_complete, a);
+    other.AddMember("save_on_location_discover", save_on_location_discover, a);
+    return other;
 };

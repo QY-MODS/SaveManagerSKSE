@@ -21,17 +21,12 @@ void OnMessage(SKSE::MessagingInterface::Message* message) {
         eventSourceHolder->AddEventSink<RE::TESSleepStopEvent>(eventSink);
         eventSourceHolder->AddEventSink<RE::TESWaitStopEvent>(eventSink);
         eventSourceHolder->AddEventSink<RE::TESCombatEvent>(eventSink);
+        eventSourceHolder->AddEventSink<RE::TESTrackedStatsEvent>(eventSink);
         logger::info("Event sinks added.");
 
         // MCP
         MCP::Register(manager);
         logger::info("MCP registered.");
-    }
-    else if (message->type == SKSE::MessagingInterface::kPostLoad) {
-		// Post-load
-	}
-    else if (message->type == SKSE::MessagingInterface::kNewGame || message->type == SKSE::MessagingInterface::kPostLoadGame) {
-        // Post-load
     }
 }
 

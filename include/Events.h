@@ -7,7 +7,9 @@ class ourEventSink : public RE::BSTEventSink<RE::TESContainerChangedEvent>,
                      public RE::BSTEventSink<RE::MenuOpenCloseEvent>,
                      public RE::BSTEventSink<RE::TESSleepStopEvent>,
                      public RE::BSTEventSink<RE::TESWaitStopEvent>,
-                     public RE::BSTEventSink<RE::TESCombatEvent> {
+                     public RE::BSTEventSink<RE::TESCombatEvent>,
+                     public RE::BSTEventSink<RE::TESTrackedStatsEvent>
+{
 public:
 
     ourEventSink() = default;
@@ -38,7 +40,8 @@ public:
 
     RE::BSEventNotifyControl ProcessEvent(const RE::TESCombatEvent* event, RE::BSTEventSource<RE::TESCombatEvent>*);
 
-
+    RE::BSEventNotifyControl ProcessEvent(const RE::TESTrackedStatsEvent* event,
+                                          RE::BSTEventSource<RE::TESTrackedStatsEvent>*);
 
 private:
     Manager* M = nullptr;

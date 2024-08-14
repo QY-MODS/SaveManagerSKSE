@@ -84,6 +84,12 @@ namespace SaveSettings {
 
 		QuitGame,
 
+		LevelUp,
+        SkillUp,
+        QuestComplete,
+        LocationDiscover,
+
+
 	};
 
 	namespace Menu {
@@ -118,6 +124,17 @@ namespace SaveSettings {
 		rapidjson::Value to_json(Document::AllocatorType& a);
 	};
 
+	namespace Other {
+        inline bool save_on_level_up = false;
+        inline bool save_on_skill_up = false;
+        inline bool save_on_quest_complete = false;
+        inline bool save_on_location_discover = false;
+        //inline bool save_on_quit = false;
+
+        rapidjson::Value to_json(Document::AllocatorType& a);
+	
+	};
+
 	static std::map<Scenarios, std::string> scenario_names = {
         {MenuOpenContainerMenu,"MenuOpenContainerMenu"},
 		//{MenuOpenBarterMenu,"MenuOpenBarterMenu"},
@@ -145,6 +162,14 @@ namespace SaveSettings {
 
 		{CombatEnter, "CombatEnter"},
 		{CombatExit, "CombatExit"},
+
+		{QuitGame, "QuitGame"},
+
+		{LevelUp, "LevelUp"},
+        {SkillUp, "SkillUp"},
+        {QuestComplete, "QuestComplete"},
+        {LocationDiscover, "LocationDiscover"},
+
     };
 };
 
