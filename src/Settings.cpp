@@ -169,6 +169,9 @@ void SaveSettings::LoadJSON(){
 	// Main
     if (doc.HasMember("main")) {
 	    const auto& main = doc["main"];
+        if (main.HasMember("auto_save_to_json") && main["auto_save_to_json"].IsBool()) auto_save_to_json = main["auto_save_to_json"].GetBool();
+        if (main.HasMember("regular_saves") && main["regular_saves"].IsBool()) regular_saves = main["regular_saves"].GetBool();
+        if (main.HasMember("block_autosaving_notif") && main["block_autosaving_notif"].IsBool()) block_autosaving_notif = main["block_autosaving_notif"].GetBool();
 	    if (main.HasMember("block") && main["block"].IsBool()) block = main["block"].GetBool();
 	    if (main.HasMember("queue_delay") && main["queue_delay"].IsInt()) queue_delay = main["queue_delay"].GetInt();
 	    if (main.HasMember("ticker_interval") && main["ticker_interval"].IsInt()) ticker_interval = main["ticker_interval"].GetInt();
@@ -266,6 +269,9 @@ uint32_t SaveSettings::GetSaveFlag() { return regular_saves ? 0xf0000080 : 0xf00
 rapidjson::Value SaveSettings::to_json_main_stuff(Document::AllocatorType& a) {
     Value main_stuff(kObjectType);
 
+    main_stuff.AddMember("auto_save_to_json", auto_save_to_json, a);
+    main_stuff.AddMember("regular_saves", regular_saves, a);
+    main_stuff.AddMember("block_autosaving_notif", block_autosaving_notif, a);
     main_stuff.AddMember("block", block, a);
     main_stuff.AddMember("queue_delay", queue_delay, a);
     main_stuff.AddMember("ticker_interval", ticker_interval, a);
