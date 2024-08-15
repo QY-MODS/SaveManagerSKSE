@@ -92,9 +92,6 @@ RE::BSEventNotifyControl ourEventSink::ProcessEvent(const RE::TESTrackedStatsEve
                                                     RE::BSTEventSource<RE::TESTrackedStatsEvent>*) {
     if (!event) return RE::BSEventNotifyControl::kContinue;
     
-    logger::info("stat: {}", event->stat.c_str());
-    logger::info("stat value: {}", event->value);
-
     if (_strcmpi(event->stat.c_str(), "Level Increases") == 0 && SaveSettings::Other::save_on_level_up) {
         M->QueueSaveGame(SaveSettings::queue_delay, SaveSettings::Scenarios::LevelUp);
     } 

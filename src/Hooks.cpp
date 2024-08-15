@@ -12,8 +12,6 @@ template <typename MenuType>
 RE::UI_MESSAGE_RESULTS MenuHook<MenuType>::ProcessMessage_Hook(RE::UIMessage& a_message) {
     const std::string_view menuName = MenuType::MENU_NAME;
     if (_strcmpi(a_message.menu.c_str(), std::string(menuName).c_str()) == 0) {
-        logger::info("menu name {}", a_message.menu.c_str());
-        logger::info("type {}", static_cast<int>(a_message.type.get()));
 
         if (auto _menu = RE::UI::GetSingleton()->GetMenu<MenuType>(menuName)) {
             if (const auto msg_type = static_cast<int>(a_message.type.get());
