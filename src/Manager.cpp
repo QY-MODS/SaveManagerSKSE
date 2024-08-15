@@ -24,6 +24,9 @@ void Manager::QueueSaveGame(int seconds, SaveSettings::Scenarios scenario) {
 			if (entry.second == SaveSettings::Scenarios::Timer) return;
 		}
 	}
+
+    seconds = std::max(1, seconds);
+
     if (seconds > 0 && queue.size() < 100) {
         queue.insert(std::make_pair(seconds, scenario));
         const auto temp = std::format("Save queued for {} second(s).", seconds);

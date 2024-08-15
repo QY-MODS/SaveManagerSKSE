@@ -27,7 +27,7 @@ RE::BSEventNotifyControl ourEventSink::ProcessEvent(const RE::MenuOpenCloseEvent
 			const auto time_spent = std::chrono::duration_cast<std::chrono::seconds>(datetime::now() - menu_times[menu_name]).count();
 			if (time_spent < min_time_spent) return RE::BSEventNotifyControl::kContinue;
 		}
-        M->QueueSaveGame(std::max(1, SaveSettings::Menu::After[menu_name]), temp_setting_close.second);
+        M->QueueSaveGame(SaveSettings::Menu::After[menu_name], temp_setting_close.second);
         
         menu_times.erase(menu_name);
 		
@@ -41,9 +41,7 @@ RE::BSEventNotifyControl ourEventSink::ProcessEvent(const RE::TESSleepStopEvent*
                                                     RE::BSTEventSource<RE::TESSleepStopEvent>*) {
     if (!event) return RE::BSEventNotifyControl::kContinue;
 
-    const auto temp_time = std::max(1, SaveSettings::SleepWait::sleep_time);
-
-    M->QueueSaveGame(temp_time,SaveSettings::Scenarios::SleepWaitStop);
+    M->QueueSaveGame(SaveSettings::SleepWait::sleep_time, SaveSettings::Scenarios::SleepWaitStop);
 
     return RE::BSEventNotifyControl::kContinue;
 }
@@ -53,9 +51,7 @@ RE::BSEventNotifyControl ourEventSink::ProcessEvent(const RE::TESWaitStopEvent* 
     if (!event) return RE::BSEventNotifyControl::kContinue;
     if (!SaveSettings::SleepWait::wait) return RE::BSEventNotifyControl::kContinue;
 
-    const auto temp_time = std::max(1, SaveSettings::SleepWait::wait_time);
-
-    M->QueueSaveGame(temp_time,SaveSettings::Scenarios::SleepWaitStop);
+    M->QueueSaveGame(SaveSettings::SleepWait::wait_time, SaveSettings::Scenarios::SleepWaitStop);
 
     return RE::BSEventNotifyControl::kContinue;
 }
