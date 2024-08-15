@@ -25,6 +25,10 @@ namespace LogSettings {
 
 namespace SaveSettings {
 
+    inline float last_save_time = 0.0f;     // in in-game hours
+	inline bool block_autosaving_notif = false;
+    inline int temp_min_save_interval = 1;  // in in-game minutes
+
 	using namespace rapidjson;
 
 	void SaveJSON();
@@ -34,7 +38,7 @@ namespace SaveSettings {
 	
 	inline bool auto_save_to_json = true;
     inline bool regular_saves = false;
-	inline bool block_autosaving_notif = false;
+    inline float min_save_interval = std::max(0.0f, SaveSettings::temp_min_save_interval / 60.f); // in in-game hours
 
 	rapidjson::Value to_json_main_stuff(Document::AllocatorType& a);
 	rapidjson::Value to_json_timer_stuff(Document::AllocatorType& a);
@@ -175,7 +179,10 @@ namespace SaveSettings {
 
 
 inline void MainSaveFunction() {
+    const auto curr_time = RE::Calendar::GetSingleton()->GetHoursPassed();
+    if (curr_time - SaveSettings::last_save_time < SaveSettings::min_save_interval) return;
     SaveSettings::block_autosaving_notif = true;
     Utilities::AutoSave(SaveSettings::GetSaveFlag());
+    SaveSettings::last_save_time = curr_time;
     if (SaveSettings::notifications) RE::DebugNotification((Utilities::mod_name + ": Game saved.").c_str());
 }

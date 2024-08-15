@@ -45,6 +45,12 @@ void __stdcall MCP::RenderSettings() {
     ImGui::Checkbox("Regular Saves", &SaveSettings::regular_saves);
     ImGui::SameLine();
     HelpMarker("Regular saves instead of auto saves.");
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(180);
+    ImGui::InputInt("Min. Save Interval", &SaveSettings::temp_min_save_interval);
+    SaveSettings::min_save_interval = std::max(0.0f, SaveSettings::temp_min_save_interval / 60.f);
+    ImGui::SameLine();
+    HelpMarker("Minimum allowed time between consecutive saves in in-game minutes");
 
     ImGui::Checkbox("Notifications", &SaveSettings::notifications);
     ImGui::SameLine();
