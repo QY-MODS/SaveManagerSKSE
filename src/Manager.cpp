@@ -139,11 +139,26 @@ bool Manager::SaveGame(SaveSettings::Scenarios reason) {
         QueueSaveGame(SaveSettings::queue_delay, reason);
         return false;
     }
+    const auto player = RE::PlayerCharacter::GetSingleton();
+    if (!player) {
+        logger::error("PlayerCharacter is null!");
+        return false;
+    }
+    const auto player_actorstate = player->AsActorState();
+    if (!player_actorstate) {
+        logger::error("PlayerCharacter ActorState is null!");
+        return false;
+    }
+    const auto attack_state = static_cast<uint32_t>(player_actorstate->GetAttackState());
     if (SaveSettings::block || 
-        RE::PlayerCharacter::GetSingleton()->IsDead() ||
-        RE::PlayerCharacter::GetSingleton()->IsOnMount() ||
-        !RE::PlayerCharacter::GetSingleton()->GetParentCell() ||
-        RE::PlayerCharacter::GetSingleton()->IsInCombat() ||
+        !player->GetParentCell() ||
+        player->IsDead() ||
+        player->IsOnMount() ||
+        player->IsInCombat() ||
+        player->IsInRagdollState() ||
+        player->IsInKillMove() ||
+        player->IsInMidair() ||
+        IsInBowAttackState(attack_state) ||
         ui->IsMenuOpen(RE::DialogueMenu::MENU_NAME) ||
         ui->IsMenuOpen(RE::MainMenu::MENU_NAME) ||
         ui->IsMenuOpen(RE::TweenMenu::MENU_NAME) ||
@@ -169,7 +184,7 @@ bool Manager::SaveGame(SaveSettings::Scenarios reason) {
     }
     
     logger::info("Saving game...");
-    SKSE::GetTaskInterface()->AddTask([]() {
+    /*SKSE::GetTaskInterface()->AddTask([]() {*/
         //auto slm = RE::BGSSaveLoadManager::GetSingleton();
         //if (!slm) return;
         //if (slm->thread.isBusy) return;
@@ -188,8 +203,7 @@ bool Manager::SaveGame(SaveSettings::Scenarios reason) {
         //if (!player_ws.empty()) player_ws = "_" + player_ws;
         //slm->Save((player_name + player_ws + player_parentcell + date).c_str());
         //GameLock::SetState(GameLock::State::Unlocked);
-
-        MainSaveFunction();
-	});
+	//});
+    SKSE::GetTaskInterface()->AddTask(MainSaveFunction);
 	return true;
 }

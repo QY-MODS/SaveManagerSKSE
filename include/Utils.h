@@ -39,4 +39,7 @@ namespace Utilities {
 
 };
 
+constexpr std::array<int, 4> bow_attack_states = {8, 10, 11, 13};
+bool IsInBowAttackState(const int attack_state);
+
 
