@@ -52,7 +52,6 @@ private:
 
     ourEventSink(Manager* manager) : M(manager){ 
         if (SaveSettings::timer_periodic && SaveSettings::timer_running) {
-            SaveSettings::timer_running = false;
             M->QueueSaveGame(SaveSettings::timer_minutes * 60 + SaveSettings::timer_seconds,
                              SaveSettings::Scenarios::Timer);
 		}

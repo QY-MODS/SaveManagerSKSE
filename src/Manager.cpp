@@ -93,9 +93,6 @@ void Manager::UpdateLoop() {
     std::vector<std::pair<int, SaveSettings::Scenarios>> queue_vector(queue.begin(), queue.end());
     for (auto it = queue_vector.begin(); it != queue_vector.end();) {
         it->first -= deduct;
-        /*if (SaveSettings::notifications && SaveSettings::close_game && it->first <= 10 && it->second == SaveSettings::Scenarios::Timer) {
-            RE::DebugNotification("Quitting game after saving in less than 10 seconds...");
-        }*/
         if (it->first <= 0) {
             reason = it->second;
             it = queue_vector.erase(it);
@@ -133,7 +130,6 @@ bool Manager::SaveGame(SaveSettings::Scenarios reason) {
 		Utilities::QuitGame();
         return true;
 	}
-    //if (auto ui = RE::UI::GetSingleton(); ui && ui->GameIsPaused()) return QueueSaveGame(SaveSettings::queue_delay,reason);
     auto ui = RE::UI::GetSingleton();
     if (!ui) {
         QueueSaveGame(SaveSettings::queue_delay, reason);
