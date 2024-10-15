@@ -9,7 +9,7 @@
 //    void SetState(State currentState);
 //};
 
-const std::uint32_t kDataKey = 'ASSE';
+constexpr std::uint32_t kDataKey = 'ASSE';
 const std::string settings_save_path = std::format("Data/SKSE/Plugins/{}/Settings.json", Utilities::mod_name);
 
 namespace PluginSettings {
@@ -38,7 +38,7 @@ namespace SaveSettings {
 	
 	inline bool auto_save_to_json = true;
     inline bool regular_saves = false;
-    inline float min_save_interval = std::max(0.0f, SaveSettings::temp_min_save_interval / 60.f); // in in-game hours
+    inline float min_save_interval = std::max(0.0f, temp_min_save_interval / 60.f); // in in-game hours
 
 	rapidjson::Value to_json_main_stuff(Document::AllocatorType& a);
 	rapidjson::Value to_json_timer_stuff(Document::AllocatorType& a);

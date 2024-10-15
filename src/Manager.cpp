@@ -20,8 +20,8 @@ void Manager::QueueSaveGame(int seconds, SaveSettings::Scenarios scenario) {
 
     // if Timer is queued, dont allow a second one
     if (scenario == SaveSettings::Scenarios::Timer) {
-		for (auto& entry : queue) {
-			if (entry.second == SaveSettings::Scenarios::Timer) return;
+		for (const auto& [fst, snd] : queue) {
+			if (snd == SaveSettings::Scenarios::Timer) return;
 		}
 	}
 
@@ -35,7 +35,7 @@ void Manager::QueueSaveGame(int seconds, SaveSettings::Scenarios scenario) {
     }
 }
 
-const std::vector<std::pair<int, SaveSettings::Scenarios>> Manager::GetQueue() {
+std::vector<std::pair<int, SaveSettings::Scenarios>> Manager::GetQueue() {
     // mutex lock
     std::lock_guard<std::mutex> lock(mutex);
     return std::vector<std::pair<int, SaveSettings::Scenarios>>(queue.begin(), queue.end());
@@ -87,7 +87,7 @@ void Manager::UpdateLoop() {
 
     // deduct time from all entries
     bool save = false;
-    SaveSettings::Scenarios reason;
+    SaveSettings::Scenarios reason = {};
     const auto deduct = SaveSettings::ticker_interval;
     // unpack the queue to a vector
     std::vector<std::pair<int, SaveSettings::Scenarios>> queue_vector(queue.begin(), queue.end());
@@ -110,7 +110,7 @@ void Manager::UpdateLoop() {
 	}
 
     if (save) {
-        bool saved = SaveGame(reason);
+        const bool saved = SaveGame(reason);
         if (reason == SaveSettings::Scenarios::Timer) {
             if (saved && SaveSettings::close_game) {
                 RE::DebugNotification("Closing game in 10 seconds!");
@@ -128,13 +128,13 @@ void Manager::UpdateLoop() {
 }
 void Manager::Init(){};
 
-bool Manager::SaveGame(SaveSettings::Scenarios reason) {
+bool Manager::SaveGame(const SaveSettings::Scenarios reason) {
     if (reason == SaveSettings::Scenarios::QuitGame) {
 		Utilities::QuitGame();
         return true;
 	}
     //if (auto ui = RE::UI::GetSingleton(); ui && ui->GameIsPaused()) return QueueSaveGame(SaveSettings::queue_delay,reason);
-    auto ui = RE::UI::GetSingleton();
+    const auto ui = RE::UI::GetSingleton();
     if (!ui) {
         QueueSaveGame(SaveSettings::queue_delay, reason);
         return false;

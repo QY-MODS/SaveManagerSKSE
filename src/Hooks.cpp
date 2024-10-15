@@ -3,15 +3,14 @@
 using namespace Hooks;
 
 template <typename MenuType>
-void MenuHook<MenuType>::InstallHook(REL::VariantID varID) {
+void MenuHook<MenuType>::InstallHook(const REL::VariantID& varID) {
     REL::Relocation<std::uintptr_t> vTable(varID);
     _ProcessMessage = vTable.write_vfunc(0x4, &MenuHook<MenuType>::ProcessMessage_Hook);
 }
 
 template <typename MenuType>
 RE::UI_MESSAGE_RESULTS MenuHook<MenuType>::ProcessMessage_Hook(RE::UIMessage& a_message) {
-    const std::string_view menuName = MenuType::MENU_NAME;
-    if (_strcmpi(a_message.menu.c_str(), std::string(menuName).c_str()) == 0) {
+    if (const std::string_view menuName = MenuType::MENU_NAME; _strcmpi(a_message.menu.c_str(), std::string(menuName).c_str()) == 0) {
 
         if (auto _menu = RE::UI::GetSingleton()->GetMenu<MenuType>(menuName)) {
             if (const auto msg_type = static_cast<int>(a_message.type.get());

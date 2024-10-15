@@ -27,11 +27,23 @@ void OnMessage(SKSE::MessagingInterface::Message* message) {
         // MCP
         MCP::Register(manager);
         logger::info("MCP registered.");
+
+        denemelerr();
+        const auto sLocalSavePath = RE::GetINISetting("sLocalSavePath:General");
+        logger::info("sLocalSavePath:General: {}", sLocalSavePath->GetString());
+        // list all files in the save directory
+        auto savePath = std::string(RE::GetINISetting("sLocalSavePath:General")->GetString());
+        logger::info("savePath: {}", savePath);
+        for (const auto& entry : std::filesystem::directory_iterator(savePath)) {
+            logger::info("{}", entry.path().string());
+        }
+
+
     }
 }
 
 static void SetupLog() {
-    auto logFilePath = Utilities::GetLogPath();
+    const auto logFilePath = Utilities::GetLogPath();
     auto fileLoggerPtr = std::make_shared<spdlog::sinks::basic_file_sink_mt>(logFilePath.string(), true);
     auto loggerPtr = std::make_shared<spdlog::logger>("log", std::move(fileLoggerPtr));
     spdlog::set_default_logger(std::move(loggerPtr));

@@ -18,7 +18,7 @@ private:
     std::map<std::string, unsigned int> time_spent;
     
     void UpdateLoop();
-    void Init();
+    static void Init();
     bool SaveGame(SaveSettings::Scenarios reason);
 
 public:

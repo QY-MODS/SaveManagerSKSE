@@ -78,8 +78,8 @@ void __stdcall MCP::RenderSettings() {
     MCP::Settings::RenderCollapseExpandAll();
 
     // Default header state to true (open) if not already set
-    for (auto& header_name : header_names) {
-        if (headerStates.find(header_name) == headerStates.end()) {
+    for (const auto& header_name : header_names) {
+        if (!headerStates.contains(header_name)) {
             headerStates[header_name] = true;
         }
     }
@@ -97,7 +97,7 @@ void __stdcall MCP::RenderSettings() {
 void MCP::Settings::RenderCollapseExpandAll() {
     // checkbox for collapse all below
     if (ImGui::Button("Collapse All")) {
-        for (auto& header_name : header_names) {
+        for (const auto& header_name : header_names) {
             headerStates[header_name] = false;
         }
     }
@@ -105,7 +105,7 @@ void MCP::Settings::RenderCollapseExpandAll() {
     // checkbox for expand all below
     ImGui::SameLine();
     if (ImGui::Button("Expand All")) {
-        for (auto& header_name : header_names) {
+        for (const auto& header_name : header_names) {
             headerStates[header_name] = true;
         }
     }
@@ -190,7 +190,7 @@ void MCP::Settings::RenderMenu() {
         }
         headerStates["Menu"] = true;
 
-        float maxTextWidth = 180.0f;
+        constexpr float maxTextWidth = 180.0f;
         //for (const auto& [menu_name, _] : SaveSettings::Menu::Open) {
             //maxTextWidth = std::max(maxTextWidth, ImGui::CalcTextSize(menu_name.c_str()).x);
         //}
@@ -250,7 +250,7 @@ void MCP::Settings::RenderSleepWait(){
         }
         headerStates["SleepWait"] = true;
 
-        float maxTextWidth = 180.0f;
+        constexpr float maxTextWidth = 180.0f;
         //for (const auto& temp_name : {"Sleep", "Wait"}) {
             //maxTextWidth = std::max(maxTextWidth, ImGui::CalcTextSize(temp_name).x);
         //}
@@ -289,27 +289,27 @@ void MCP::Settings::RenderCombat(){
         }
         headerStates["Combat"] = true;
 
-        float maxTextWidth = 180.0f;
+        constexpr float maxTextWidth = 180.0f;
 
         bool setting_open = SaveSettings::Combat::entering_combat;
         bool setting_close = SaveSettings::Combat::exiting_combat;
         int setting_after = SaveSettings::Combat::combat_time;
         int setting_time_spent = SaveSettings::Combat::min_combat_time_exit;
 
-        std::string menu_name = "CombatEvents";
+        const std::string menu_name = "CombatEvents";
         ImGui::Text(menu_name.c_str());
         ImGui::SameLine();
         ImGui::SetCursorPosX(maxTextWidth + 20);  // Adjust the 20 value to set spacing
-        std::string checkbox_name_open = "Enter##" + menu_name;
+        const std::string checkbox_name_open = "Enter##" + menu_name;
         ImGui::Checkbox(checkbox_name_open.c_str(), &setting_open);
         ImGui::SameLine();
-        std::string checkbox_name_close = "Exit##" + menu_name;
+        const std::string checkbox_name_close = "Exit##" + menu_name;
         ImGui::Checkbox(checkbox_name_close.c_str(), &setting_close);
         // add text with field for seconds to wait after menu is closed
         ImGui::SameLine();
         ImGui::Text("After");
         ImGui::SameLine();
-        std::string input_name = "##" + menu_name;
+        const std::string input_name = "##" + menu_name;
         ImGui::SetNextItemWidth(180);
         ImGui::InputInt(input_name.c_str(), &setting_after);
         ImGui::SameLine();
@@ -342,7 +342,7 @@ void MCP::Settings::RenderMisc(){
         }
         headerStates["Misc"] = true;
 
-        float maxTextWidth = 180.0f;
+        constexpr float maxTextWidth = 180.0f;
 
         ImGui::Text("LevelUp");
         ImGui::SameLine();
@@ -415,7 +415,7 @@ void __stdcall MCP::RenderStatus(){
     for (const auto& [t, reason] : M->GetQueue()) {
         ImGui::Text("%d", t);
 		ImGui::NextColumn();
-        if (!SaveSettings::scenario_names.count(reason)) ImGui::Text("Unknown");
+        if (!SaveSettings::scenario_names.contains(reason)) ImGui::Text("Unknown");
         else ImGui::Text(SaveSettings::scenario_names[reason].c_str());
 		ImGui::NextColumn();
 	}

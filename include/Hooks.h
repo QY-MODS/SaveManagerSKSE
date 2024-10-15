@@ -2,9 +2,8 @@
 #include "Settings.h"
 
 namespace Hooks {
-
-    const uint8_t n_hooks = 1;
-    const size_t trampoline_size = n_hooks * 14;
+    constexpr uint8_t n_hooks = 1;
+    constexpr size_t trampoline_size = n_hooks * 14;
 
     void Install();
 
