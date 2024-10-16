@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Data.h"
 #include "Utils.h"
 
 
@@ -11,6 +12,7 @@
 
 constexpr std::uint32_t kDataKey = 'ASSE';
 const std::string settings_save_path = std::format("Data/SKSE/Plugins/{}/Settings.json", Utilities::mod_name);
+const std::string registry_save_path = std::format("Data/SKSE/Plugins/{}/Registry.json", Utilities::mod_name);
 
 namespace PluginSettings {
 	inline bool running = true;
@@ -177,12 +179,30 @@ namespace SaveSettings {
     };
 };
 
+namespace SaveRegistry {
+	using namespace rapidjson;
+    inline std::map<uint32_t,boost::circular_buffer<uint32_t>> registry;
+
+    bool Add(uint32_t charID, uint32_t saveNo);
+	bool Remove(uint32_t charID, uint32_t saveNo);
+	void HandleRotation();
+
+	void to_json();
+	void from_json();
+
+	inline int max_saves = 2;
+
+};
 
 inline void MainSaveFunction() {
     const auto curr_time = RE::Calendar::GetSingleton()->GetHoursPassed();
     if (curr_time - SaveSettings::last_save_time < SaveSettings::min_save_interval) return;
     SaveSettings::block_autosaving_notif = true;
-    Utilities::AutoSave(SaveSettings::GetSaveFlag());
+	const auto flag = SaveSettings::GetSaveFlag();
+
+	if (flag == 0xf0000080) SaveRegistry::HandleRotation();
+    Utilities::AutoSave(flag);
+
     SaveSettings::last_save_time = curr_time;
     if (SaveSettings::notifications) RE::DebugNotification((Utilities::mod_name + ": Game saved.").c_str());
 }

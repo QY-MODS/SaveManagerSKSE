@@ -13,7 +13,7 @@ namespace Hooks {
         static inline REL::Relocation<ProcessMessage_t> _ProcessMessage;
         RE::UI_MESSAGE_RESULTS ProcessMessage_Hook(RE::UIMessage& a_message);
     public:
-        static void InstallHook(REL::VariantID varID);
+        static void InstallHook(const REL::VariantID& varID);
     };
 
     struct SaveDebugNotifHook {

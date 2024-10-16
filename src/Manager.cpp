@@ -84,6 +84,10 @@ void Manager::UpdateLoop() {
         Stop();
         return;
     }
+	else if (RE::UI::GetSingleton()->GameIsPaused()) {
+		logger::trace("Game is paused, returning...");
+		return;
+	}
 
     // deduct time from all entries
     bool save = false;

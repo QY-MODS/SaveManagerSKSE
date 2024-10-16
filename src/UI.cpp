@@ -45,12 +45,23 @@ void __stdcall MCP::RenderSettings() {
     ImGui::Checkbox("Regular Saves", &SaveSettings::regular_saves);
     ImGui::SameLine();
     HelpMarker("Regular saves instead of auto saves.");
-    ImGui::SameLine();
+
     ImGui::SetNextItemWidth(180);
     ImGui::InputInt("Min. Save Interval", &SaveSettings::temp_min_save_interval);
     SaveSettings::min_save_interval = std::max(0.0f, SaveSettings::temp_min_save_interval / 60.f);
     ImGui::SameLine();
     HelpMarker("Minimum allowed time between consecutive saves in in-game minutes");
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(180);
+    if (ImGui::InputInt("Save Rotation Size", &SaveRegistry::max_saves)) {
+        SaveRegistry::max_saves = std::min(std::max(0, SaveRegistry::max_saves),50);
+		for (auto& [_, saves] : SaveRegistry::registry) {
+			saves.rset_capacity(SaveRegistry::max_saves);
+        }
+		SaveRegistry::to_json();
+    }
+    ImGui::SameLine();
+    HelpMarker("Maximum number of plugin-generated saves to keep before the oldest one is deleted.");
 
     ImGui::Checkbox("Notifications", &SaveSettings::notifications);
     ImGui::SameLine();

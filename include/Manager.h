@@ -16,6 +16,7 @@ private:
 
     std::set<std::pair<int, SaveSettings::Scenarios>, PairFirstComparator> queue;
     std::map<std::string, unsigned int> time_spent;
+
     
     void UpdateLoop();
     static void Init();
@@ -32,15 +33,15 @@ public:
         return &singleton;
     }
 
-    void Uninstall();
+    static void Uninstall();
 
     void DisableMod();
 
-    void EnableMod();
+    static void EnableMod();
 
     void QueueSaveGame(int seconds, SaveSettings::Scenarios scenario);
 
-    const std::vector<std::pair<int, SaveSettings::Scenarios>> GetQueue();
+    std::vector<std::pair<int, SaveSettings::Scenarios>> GetQueue();
 
     bool DeleteQueuedSave(SaveSettings::Scenarios scenario);
 

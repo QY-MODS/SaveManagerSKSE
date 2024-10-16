@@ -20,6 +20,9 @@
 #include <ClibUtil/editorID.hpp>
 #include <filesystem>
 #include <fstream>
+#include <boost/circular_buffer.hpp>
+
+#include "SaveLoadManager.h"
 
 
 
@@ -37,30 +40,4 @@ namespace Utilities {
 	void AutoSave(uint32_t flag = 0xf0000040);
     void QuitGame();
 
-	static void BuildSaveGameList(RE::BGSSaveLoadManager* a_manager) {
-        using func_t = decltype(&BuildSaveGameList);
-        REL::Relocation<func_t> func{RELOCATION_ID(34850, 35760)};
-        return func(a_manager);
-    }
-
 };
-
-static void denemelerr(){
-    const auto manager = RE::BGSSaveLoadManager::GetSingleton();
-    Utilities::BuildSaveGameList(manager);
-    const auto& temp_map = manager->playerIDNameMap;
-    logger::info("temp_map size {}", temp_map.size());
-
-    auto& savelist = manager->saveGameList;
-    size_t savelist_size = 0;
-    for (auto& it : savelist) {
-        savelist_size++;
-        logger::info("Player Name {} location {} Filename {} ", it->playerName, it->location, it->fileName);
-        /*logger::info("Player Name {} location {} Player title {}", (*it)->playerName.c_str(), (*it)->location,
-                     (*it)->playerTitle.c_str());*/
-    }
-    logger ::info("PostLoadGame: SaveList size: {}", savelist_size);
-
-};
-
-
