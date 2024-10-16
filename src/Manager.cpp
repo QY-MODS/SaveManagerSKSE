@@ -100,9 +100,6 @@ void Manager::UpdateLoop() {
     std::vector<std::pair<int, SaveSettings::Scenarios>> queue_vector(queue.begin(), queue.end());
     for (auto it = queue_vector.begin(); it != queue_vector.end();) {
         it->first -= deduct;
-        /*if (SaveSettings::notifications && SaveSettings::close_game && it->first <= 10 && it->second == SaveSettings::Scenarios::Timer) {
-            RE::DebugNotification("Quitting game after saving in less than 10 seconds...");
-        }*/
         if (it->first <= 0) {
             reason = it->second;
             it = queue_vector.erase(it);
@@ -146,11 +143,26 @@ bool Manager::SaveGame(const SaveSettings::Scenarios reason) {
         QueueSaveGame(SaveSettings::queue_delay, reason);
         return false;
     }
+    const auto player = RE::PlayerCharacter::GetSingleton();
+    if (!player) {
+        logger::error("PlayerCharacter is null!");
+        return false;
+    }
+    const auto player_actorstate = player->AsActorState();
+    if (!player_actorstate) {
+        logger::error("PlayerCharacter ActorState is null!");
+        return false;
+    }
+    const auto attack_state = static_cast<uint32_t>(player_actorstate->GetAttackState());
     if (SaveSettings::block || 
-        RE::PlayerCharacter::GetSingleton()->IsDead() ||
-        RE::PlayerCharacter::GetSingleton()->IsOnMount() ||
-        !RE::PlayerCharacter::GetSingleton()->GetParentCell() ||
-        RE::PlayerCharacter::GetSingleton()->IsInCombat() ||
+        !player->GetParentCell() ||
+        player->IsDead() ||
+        player->IsOnMount() ||
+        player->IsInCombat() ||
+        player->IsInRagdollState() ||
+        player->IsInKillMove() ||
+        player->IsInMidair() ||
+        IsInBowAttackState(attack_state) ||
         ui->IsMenuOpen(RE::DialogueMenu::MENU_NAME) ||
         ui->IsMenuOpen(RE::MainMenu::MENU_NAME) ||
         ui->IsMenuOpen(RE::TweenMenu::MENU_NAME) ||
@@ -176,7 +188,7 @@ bool Manager::SaveGame(const SaveSettings::Scenarios reason) {
     }
     
     logger::info("Saving game...");
-    SKSE::GetTaskInterface()->AddTask([]() {
+    /*SKSE::GetTaskInterface()->AddTask([]() {*/
         //auto slm = RE::BGSSaveLoadManager::GetSingleton();
         //if (!slm) return;
         //if (slm->thread.isBusy) return;
@@ -195,8 +207,7 @@ bool Manager::SaveGame(const SaveSettings::Scenarios reason) {
         //if (!player_ws.empty()) player_ws = "_" + player_ws;
         //slm->Save((player_name + player_ws + player_parentcell + date).c_str());
         //GameLock::SetState(GameLock::State::Unlocked);
-
-        MainSaveFunction();
-	});
+	//});
+    SKSE::GetTaskInterface()->AddTask(MainSaveFunction);
 	return true;
 }

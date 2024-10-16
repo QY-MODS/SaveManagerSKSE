@@ -40,3 +40,12 @@ void Utilities::AutoSave(uint32_t flag) {
 void Utilities::QuitGame(){
     SKSE::GetTaskInterface()->AddTask([]() { RE::Main::GetSingleton()->quitGame = true; });
 };
+
+bool IsInBowAttackState(const int attack_state) { 
+
+    if (std::find(std::begin(bow_attack_states), std::end(bow_attack_states), attack_state) != std::end(bow_attack_states)) {
+        return true;
+    }
+    return false;
+}
+
