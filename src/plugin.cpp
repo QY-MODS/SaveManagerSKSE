@@ -1,7 +1,6 @@
 #pragma once
 
 #include "UI.h"
-#include "windows.applicationmodel.datatransfer.sharetarget.h"
 
 Manager* manager = nullptr;
 

@@ -41,7 +41,7 @@ std::vector<std::pair<int, SaveSettings::Scenarios>> Manager::GetQueue() {
     return std::vector(queue.begin(), queue.end());
 }
 
-bool Manager::DeleteQueuedSave(SaveSettings::Scenarios scenario){
+bool Manager::DeleteQueuedSave(const SaveSettings::Scenarios scenario){
     // mutex lock
 	std::lock_guard<std::mutex> lock(mutex);
     bool deleted = false;

@@ -43,7 +43,7 @@ void Utilities::QuitGame(){
 
 bool IsInBowAttackState(const int attack_state) { 
 
-    if (std::find(std::begin(bow_attack_states), std::end(bow_attack_states), attack_state) != std::end(bow_attack_states)) {
+    if (std::ranges::find(bow_attack_states, attack_state) != std::end(bow_attack_states)) {
         return true;
     }
     return false;
