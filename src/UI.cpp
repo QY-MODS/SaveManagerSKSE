@@ -31,10 +31,6 @@ void MCP::Register(Manager* manager) {
 }
 
 void __stdcall MCP::RenderSettings() {
-    // setting for freezing game when saving
-    // ImGui::Checkbox("Freeze Game", &SaveSettings::freeze_game);
-    // ImGui::SameLine();
-    // HelpMarker("Freeze the game when saving");
 
     if (ImGui::Button("Save Settings")) SaveSettings::SaveJSON();
     ImGui::SameLine();
@@ -66,6 +62,10 @@ void __stdcall MCP::RenderSettings() {
     ImGui::Checkbox("Notifications", &SaveSettings::notifications);
     ImGui::SameLine();
     HelpMarker("Show notifications when saving");
+    ImGui::SameLine();
+    ImGui::Checkbox("Save Queued Message", &SaveSettings::queue_notif);
+    ImGui::SameLine();
+    HelpMarker("Enable/Disable message displayed when a new save is queued.");
 
     ImGui::SameLine();
 

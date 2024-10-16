@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Data.h"
 #include "UI.h"
 #include "windows.applicationmodel.datatransfer.sharetarget.h"
 
@@ -30,6 +29,14 @@ void OnMessage(SKSE::MessagingInterface::Message* message) {
         MCP::Register(manager);
         logger::info("MCP registered.");
     }
+    else if (message->type == SKSE::MessagingInterface::kPreLoadGame)
+    {
+        game_is_loading.store(true);
+	}
+	else if (message->type == SKSE::MessagingInterface::kPostLoadGame)
+	{
+        game_is_loading.store(false);
+	}
 }
 
 static void SetupLog() {

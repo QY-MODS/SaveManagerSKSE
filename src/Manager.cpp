@@ -30,7 +30,7 @@ void Manager::QueueSaveGame(int seconds, SaveSettings::Scenarios scenario) {
     if (seconds > 0 && queue.size() < 100) {
         queue.insert(std::make_pair(seconds, scenario));
         const auto temp = std::format("Save queued for {} second(s).", seconds);
-        if (SaveSettings::notifications && scenario != SaveSettings::Scenarios::QuitGame) RE::DebugNotification(temp.c_str());
+        if (SaveSettings::notifications && SaveSettings::queue_notif && scenario != SaveSettings::Scenarios::QuitGame) RE::DebugNotification(temp.c_str());
         Start();
     }
 }
@@ -38,7 +38,7 @@ void Manager::QueueSaveGame(int seconds, SaveSettings::Scenarios scenario) {
 std::vector<std::pair<int, SaveSettings::Scenarios>> Manager::GetQueue() {
     // mutex lock
     std::lock_guard<std::mutex> lock(mutex);
-    return std::vector<std::pair<int, SaveSettings::Scenarios>>(queue.begin(), queue.end());
+    return std::vector(queue.begin(), queue.end());
 }
 
 bool Manager::DeleteQueuedSave(SaveSettings::Scenarios scenario){
@@ -84,8 +84,11 @@ void Manager::UpdateLoop() {
         Stop();
         return;
     }
-	else if (RE::UI::GetSingleton()->GameIsPaused()) {
-		logger::trace("Game is paused, returning...");
+	if (const auto ui = RE::UI::GetSingleton();
+        ui->GameIsPaused() || 
+        ui->IsMenuOpen(RE::MainMenu::MENU_NAME) ||
+        ui->IsMenuOpen(RE::LoadingMenu::MENU_NAME) ||
+        game_is_loading.load()) {
 		return;
 	}
 

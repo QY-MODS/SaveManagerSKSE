@@ -13,6 +13,7 @@
 constexpr std::uint32_t kDataKey = 'ASSE';
 const std::string settings_save_path = std::format("Data/SKSE/Plugins/{}/Settings.json", Utilities::mod_name);
 const std::string registry_save_path = std::format("Data/SKSE/Plugins/{}/Registry.json", Utilities::mod_name);
+inline std::atomic<bool> game_is_loading = false;
 
 namespace PluginSettings {
 	inline bool running = true;
@@ -50,6 +51,7 @@ namespace SaveSettings {
     inline int ticker_interval = 1; // in seconds
 
 	inline bool notifications = true;
+	inline bool queue_notif = true;
 	inline int timer_minutes = 0;
 	inline int timer_seconds = 0;
 	inline bool timer_running = false;

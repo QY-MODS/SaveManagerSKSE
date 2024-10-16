@@ -176,6 +176,7 @@ void SaveSettings::LoadJSON(){
 	    if (main.HasMember("queue_delay") && main["queue_delay"].IsInt()) queue_delay = main["queue_delay"].GetInt();
 	    if (main.HasMember("ticker_interval") && main["ticker_interval"].IsInt()) ticker_interval = main["ticker_interval"].GetInt();
 	    if (main.HasMember("notifications") && main["notifications"].IsBool()) notifications = main["notifications"].GetBool();
+		if (main.HasMember("queue_notif") && main["queue_notif"].IsBool()) queue_notif = main["queue_notif"].GetBool();
         if (main.HasMember("min_save_interval") && main["min_save_interval"].IsInt()) temp_min_save_interval = main["min_save_interval"].GetInt();
         min_save_interval = std::max(0.0f, temp_min_save_interval / 60.f);
     }
@@ -279,6 +280,7 @@ rapidjson::Value SaveSettings::to_json_main_stuff(Document::AllocatorType& a) {
     main_stuff.AddMember("queue_delay", queue_delay, a);
     main_stuff.AddMember("ticker_interval", ticker_interval, a);
     main_stuff.AddMember("notifications", notifications, a);
+    main_stuff.AddMember("queue_notif", queue_notif, a);
     main_stuff.AddMember("min_save_interval", temp_min_save_interval, a);
     
     return main_stuff;
