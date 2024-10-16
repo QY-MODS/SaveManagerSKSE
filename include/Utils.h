@@ -20,6 +20,9 @@
 #include <ClibUtil/editorID.hpp>
 #include <filesystem>
 #include <fstream>
+#include <boost/circular_buffer.hpp>
+
+#include "SaveLoadManager.h"
 
 
 

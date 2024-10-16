@@ -20,8 +20,8 @@ void Manager::QueueSaveGame(int seconds, SaveSettings::Scenarios scenario) {
 
     // if Timer is queued, dont allow a second one
     if (scenario == SaveSettings::Scenarios::Timer) {
-		for (auto& entry : queue) {
-			if (entry.second == SaveSettings::Scenarios::Timer) return;
+		for (const auto& [fst, snd] : queue) {
+			if (snd == SaveSettings::Scenarios::Timer) return;
 		}
 	}
 
@@ -30,18 +30,18 @@ void Manager::QueueSaveGame(int seconds, SaveSettings::Scenarios scenario) {
     if (seconds > 0 && queue.size() < 100) {
         queue.insert(std::make_pair(seconds, scenario));
         const auto temp = std::format("Save queued for {} second(s).", seconds);
-        if (SaveSettings::notifications && scenario != SaveSettings::Scenarios::QuitGame) RE::DebugNotification(temp.c_str());
+        if (SaveSettings::notifications && SaveSettings::queue_notif && scenario != SaveSettings::Scenarios::QuitGame) RE::DebugNotification(temp.c_str());
         Start();
     }
 }
 
-const std::vector<std::pair<int, SaveSettings::Scenarios>> Manager::GetQueue() {
+std::vector<std::pair<int, SaveSettings::Scenarios>> Manager::GetQueue() {
     // mutex lock
     std::lock_guard<std::mutex> lock(mutex);
-    return std::vector<std::pair<int, SaveSettings::Scenarios>>(queue.begin(), queue.end());
+    return std::vector(queue.begin(), queue.end());
 }
 
-bool Manager::DeleteQueuedSave(SaveSettings::Scenarios scenario){
+bool Manager::DeleteQueuedSave(const SaveSettings::Scenarios scenario){
     // mutex lock
 	std::lock_guard<std::mutex> lock(mutex);
     bool deleted = false;
@@ -84,10 +84,17 @@ void Manager::UpdateLoop() {
         Stop();
         return;
     }
+	if (const auto ui = RE::UI::GetSingleton();
+        ui->GameIsPaused() || 
+        ui->IsMenuOpen(RE::MainMenu::MENU_NAME) ||
+        ui->IsMenuOpen(RE::LoadingMenu::MENU_NAME) ||
+        game_is_loading.load()) {
+		return;
+	}
 
     // deduct time from all entries
     bool save = false;
-    SaveSettings::Scenarios reason;
+    SaveSettings::Scenarios reason = {};
     const auto deduct = SaveSettings::ticker_interval;
     // unpack the queue to a vector
     std::vector<std::pair<int, SaveSettings::Scenarios>> queue_vector(queue.begin(), queue.end());
@@ -107,7 +114,7 @@ void Manager::UpdateLoop() {
 	}
 
     if (save) {
-        bool saved = SaveGame(reason);
+        const bool saved = SaveGame(reason);
         if (reason == SaveSettings::Scenarios::Timer) {
             if (saved && SaveSettings::close_game) {
                 RE::DebugNotification("Closing game in 10 seconds!");
@@ -125,12 +132,13 @@ void Manager::UpdateLoop() {
 }
 void Manager::Init(){};
 
-bool Manager::SaveGame(SaveSettings::Scenarios reason) {
+bool Manager::SaveGame(const SaveSettings::Scenarios reason) {
     if (reason == SaveSettings::Scenarios::QuitGame) {
 		Utilities::QuitGame();
         return true;
 	}
-    auto ui = RE::UI::GetSingleton();
+    //if (auto ui = RE::UI::GetSingleton(); ui && ui->GameIsPaused()) return QueueSaveGame(SaveSettings::queue_delay,reason);
+    const auto ui = RE::UI::GetSingleton();
     if (!ui) {
         QueueSaveGame(SaveSettings::queue_delay, reason);
         return false;

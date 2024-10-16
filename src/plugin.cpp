@@ -28,10 +28,18 @@ void OnMessage(SKSE::MessagingInterface::Message* message) {
         MCP::Register(manager);
         logger::info("MCP registered.");
     }
+    else if (message->type == SKSE::MessagingInterface::kPreLoadGame)
+    {
+        game_is_loading.store(true);
+	}
+	else if (message->type == SKSE::MessagingInterface::kPostLoadGame)
+	{
+        game_is_loading.store(false);
+	}
 }
 
 static void SetupLog() {
-    auto logFilePath = Utilities::GetLogPath();
+    const auto logFilePath = Utilities::GetLogPath();
     auto fileLoggerPtr = std::make_shared<spdlog::sinks::basic_file_sink_mt>(logFilePath.string(), true);
     auto loggerPtr = std::make_shared<spdlog::logger>("log", std::move(fileLoggerPtr));
     spdlog::set_default_logger(std::move(loggerPtr));

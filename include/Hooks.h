@@ -2,9 +2,8 @@
 #include "Settings.h"
 
 namespace Hooks {
-
-    const uint8_t n_hooks = 1;
-    const size_t trampoline_size = n_hooks * 14;
+    constexpr uint8_t n_hooks = 1;
+    constexpr size_t trampoline_size = n_hooks * 14;
 
     void Install();
 
@@ -14,7 +13,7 @@ namespace Hooks {
         static inline REL::Relocation<ProcessMessage_t> _ProcessMessage;
         RE::UI_MESSAGE_RESULTS ProcessMessage_Hook(RE::UIMessage& a_message);
     public:
-        static void InstallHook(REL::VariantID varID);
+        static void InstallHook(const REL::VariantID& varID);
     };
 
     struct SaveDebugNotifHook {

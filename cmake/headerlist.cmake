@@ -8,4 +8,5 @@ set(headers ${headers}
 	include/Events.h
 	include/Serialization.h
 	include/Hooks.h
+	include/SaveLoadManager.h
 )

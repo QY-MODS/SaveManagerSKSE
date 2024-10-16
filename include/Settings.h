@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Data.h"
 #include "Utils.h"
 
 
@@ -9,8 +10,10 @@
 //    void SetState(State currentState);
 //};
 
-const std::uint32_t kDataKey = 'ASSE';
+constexpr std::uint32_t kDataKey = 'ASSE';
 const std::string settings_save_path = std::format("Data/SKSE/Plugins/{}/Settings.json", Utilities::mod_name);
+const std::string registry_save_path = std::format("Data/SKSE/Plugins/{}/Registry.json", Utilities::mod_name);
+inline std::atomic<bool> game_is_loading = false;
 
 namespace PluginSettings {
 	inline bool running = true;
@@ -38,7 +41,7 @@ namespace SaveSettings {
 	
 	inline bool auto_save_to_json = true;
     inline bool regular_saves = false;
-    inline float min_save_interval = std::max(0.0f, SaveSettings::temp_min_save_interval / 60.f); // in in-game hours
+    inline float min_save_interval = std::max(0.0f, temp_min_save_interval / 60.f); // in in-game hours
 
 	rapidjson::Value to_json_main_stuff(Document::AllocatorType& a);
 	rapidjson::Value to_json_timer_stuff(Document::AllocatorType& a);
@@ -48,6 +51,7 @@ namespace SaveSettings {
     inline int ticker_interval = 1; // in seconds
 
 	inline bool notifications = true;
+	inline bool queue_notif = true;
 	inline int timer_minutes = 0;
 	inline int timer_seconds = 0;
 	inline bool timer_running = false;
@@ -177,12 +181,30 @@ namespace SaveSettings {
     };
 };
 
+namespace SaveRegistry {
+	using namespace rapidjson;
+    inline std::map<uint32_t,boost::circular_buffer<uint32_t>> registry;
+
+    bool Add(uint32_t charID, uint32_t saveNo);
+	bool Remove(uint32_t charID, uint32_t saveNo);
+	void HandleRotation();
+
+	void to_json();
+	void from_json();
+
+	inline int max_saves = 2;
+
+};
 
 inline void MainSaveFunction() {
     const auto curr_time = RE::Calendar::GetSingleton()->GetHoursPassed();
     if (curr_time - SaveSettings::last_save_time < SaveSettings::min_save_interval) return;
     SaveSettings::block_autosaving_notif = true;
-    Utilities::AutoSave(SaveSettings::GetSaveFlag());
+	const auto flag = SaveSettings::GetSaveFlag();
+
+	if (flag == 0xf0000080) SaveRegistry::HandleRotation();
+    Utilities::AutoSave(flag);
+
     SaveSettings::last_save_time = curr_time;
     if (SaveSettings::notifications) RE::DebugNotification((Utilities::mod_name + ": Game saved.").c_str());
 }

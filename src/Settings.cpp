@@ -176,6 +176,7 @@ void SaveSettings::LoadJSON(){
 	    if (main.HasMember("queue_delay") && main["queue_delay"].IsInt()) queue_delay = main["queue_delay"].GetInt();
 	    if (main.HasMember("ticker_interval") && main["ticker_interval"].IsInt()) ticker_interval = main["ticker_interval"].GetInt();
 	    if (main.HasMember("notifications") && main["notifications"].IsBool()) notifications = main["notifications"].GetBool();
+		if (main.HasMember("queue_notif") && main["queue_notif"].IsBool()) queue_notif = main["queue_notif"].GetBool();
         if (main.HasMember("min_save_interval") && main["min_save_interval"].IsInt()) temp_min_save_interval = main["min_save_interval"].GetInt();
         min_save_interval = std::max(0.0f, temp_min_save_interval / 60.f);
     }
@@ -263,6 +264,7 @@ void SaveSettings::LoadJSON(){
         if (other.HasMember("save_on_location_discover") && other["save_on_location_discover"].IsBool()) Other::save_on_location_discover = other["save_on_location_discover"].GetBool();
     }
 	
+	SaveRegistry::from_json();
     logger::info("Settings loaded successfully.");
 
 }
@@ -278,6 +280,7 @@ rapidjson::Value SaveSettings::to_json_main_stuff(Document::AllocatorType& a) {
     main_stuff.AddMember("queue_delay", queue_delay, a);
     main_stuff.AddMember("ticker_interval", ticker_interval, a);
     main_stuff.AddMember("notifications", notifications, a);
+    main_stuff.AddMember("queue_notif", queue_notif, a);
     main_stuff.AddMember("min_save_interval", temp_min_save_interval, a);
     
     return main_stuff;
@@ -365,3 +368,175 @@ rapidjson::Value SaveSettings::Other::to_json(Document::AllocatorType& a) {
     other.AddMember("save_on_location_discover", save_on_location_discover, a);
     return other;
 };
+
+bool SaveRegistry::Add(const uint32_t charID, const uint32_t saveNo)
+{
+	if (!registry.contains(charID)) {
+		registry[charID] = boost::circular_buffer<uint32_t>(max_saves);
+	}
+	if (const auto& temp = registry[charID]; std::ranges::find(temp, saveNo) != temp.end()) {
+		return false;
+	}
+    const auto removed_first = registry[charID].full();
+	registry[charID].push_back(saveNo);
+	return removed_first;
+}
+
+bool SaveRegistry::Remove(const uint32_t charID, const uint32_t saveNo)
+{
+    const auto save_manager = RE::SaveLoadManager::GetSingleton();
+	save_manager->PopulateSaveList();
+	std::string filename;
+    for (const auto& it : save_manager->saveGameList) {
+		it->PopulateFileEntryData();
+		if (it->characterID != charID) continue;
+        if (const auto save_type = static_cast<int>(it->saveType.get()); save_type != 0x1) continue;
+		if (it->saveNumber != saveNo) continue;
+		return Data::DeleteSaveFile(it->fileName);
+	}
+
+	return false;
+	
+}
+
+void SaveRegistry::HandleRotation()
+{
+	if (max_saves <= 0) return;
+
+    const auto manager = RE::SaveLoadManager::GetSingleton();
+	manager->PopulateSaveList();
+    const auto curr_playerID = manager->displayCharacterID;
+
+	std::set<uint32_t> save_nos;
+	for (const auto& it : manager->saveGameList) {
+		it->PopulateFileEntryData();
+		if (it->characterID != curr_playerID) continue;
+        if (const auto save_type = static_cast<int>(it->saveType.get()); save_type != 0x1) continue;
+		save_nos.insert(it->saveNumber);
+	}
+
+	const auto last_save_no = save_nos.empty() ? 0 : *save_nos.rbegin();
+
+    if (registry.contains(curr_playerID) && !registry[curr_playerID].empty()) {
+		for (auto it = registry[curr_playerID].begin(); it != registry[curr_playerID].end();) {
+            if (!save_nos.contains(*it)) it = registry[curr_playerID].erase(it);
+            else ++it;
+        }
+    }
+	
+	const auto first_saveno = registry.contains(curr_playerID) && !registry[curr_playerID].empty() ? registry[curr_playerID].front() : 0;
+    if (const auto removed_first = Add(curr_playerID, last_save_no+1)) Remove(curr_playerID,first_saveno);
+	to_json();
+}
+
+void SaveRegistry::to_json()
+{
+
+    Document doc;
+    doc.SetObject();
+
+    Document::AllocatorType& a = doc.GetAllocator();
+
+    Value registry_json(kObjectType);  // Represents the final JSON object
+
+    // Iterate over the registry map
+    for (const auto& [key, value] : SaveRegistry::registry) {
+        Value key_value(kObjectType);
+
+        Value buffer(kArrayType);
+        for (const auto& it : value) {
+            buffer.PushBack(it, a);
+        }
+
+        key_value.AddMember("buffer", buffer, a);
+
+        std::string key_str = std::to_string(key);
+        Value json_key(key_str.c_str(), a);
+
+        registry_json.AddMember(json_key, key_value, a);
+    }
+
+    doc.AddMember("registry", registry_json, a);
+	doc.AddMember("max_saves", max_saves, a);
+
+    // Convert JSON document to string
+    StringBuffer buffer;
+    Writer<rapidjson::StringBuffer> writer(buffer);
+    doc.Accept(writer);
+
+    // Write JSON to file
+    std::string filename = registry_save_path;
+    std::filesystem::create_directories(std::filesystem::path(filename).parent_path());
+    std::ofstream ofs(filename);
+    if (!ofs.is_open()) {
+        logger::error("Failed to open file for writing: {}", filename);
+        return;
+    }
+    ofs << buffer.GetString() << '\n';
+    ofs.close();
+
+}
+
+void SaveRegistry::from_json()
+{
+    if (!std::filesystem::exists(registry_save_path)) {
+        logger::warn("File does not exist: {}",registry_save_path);
+        return;
+    }
+
+    std::ifstream ifs(registry_save_path);
+    if (!ifs.is_open()) {
+		logger::error("Failed to open file for reading: {}", registry_save_path);
+        return;
+    }
+
+    // Use an IStreamWrapper to read from the file
+    IStreamWrapper isw(ifs);
+
+    // Parse the JSON document
+    Document doc;
+    doc.ParseStream(isw);
+
+    if (!doc.IsObject()) {
+		logger::error("Invalid JSON format: Root element is not an object.");
+        return;
+    }
+
+    // Check if the document has the "registry" member
+    if (!doc.HasMember("registry") || !doc["registry"].IsObject()) {
+		logger::error("Invalid JSON: No 'registry' object found.");
+        return;
+    }
+
+    const Value& registry_json = doc["registry"];
+    for (auto itr = registry_json.MemberBegin(); itr != registry_json.MemberEnd(); ++itr) {
+        // Convert the key back to uint32_t
+        uint32_t key = std::stoul(itr->name.GetString());
+
+        // Ensure the value is an object and has the buffer array
+        if (!itr->value.IsObject() || !itr->value.HasMember("buffer") || !itr->value["buffer"].IsArray()) {
+			logger::error("Invalid entry for key: {}", key);
+            continue;
+        }
+
+        const Value& buffer_array = itr->value["buffer"];
+        boost::circular_buffer<uint32_t> buffer(buffer_array.Size());
+
+        // Iterate through the buffer array and populate the circular buffer
+        for (SizeType i = 0; i < buffer_array.Size(); i++) {
+            if (buffer_array[i].IsInt()) {
+                buffer.push_back(buffer_array[i].GetInt());
+            } else {
+				logger::error("Invalid value in buffer for key: {}", key);
+            }
+        }
+
+        // Add to the registry map
+        SaveRegistry::registry[key] = buffer;
+    }
+
+	if (doc.HasMember("max_saves") && doc["max_saves"].IsInt()) {
+		max_saves = doc["max_saves"].GetInt();
+	}
+
+}
