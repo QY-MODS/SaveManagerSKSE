@@ -58,38 +58,3 @@ void Hooks::SaveDebugNotifHook::InstallHook(){
     REL::Relocation<std::uintptr_t> originalFunc{RELOCATION_ID(50737, 51632)};
     func = trampoline.write_call<5>(originalFunc.address() + REL::Relocate(0xaf, 0xaf), thunk);
 };
-
-//RE::BSEventNotifyControl Hooks::MenuControlsHook::ProcessEvent(RE::MenuControls* a_menuControls,
-//                                                               RE::InputEvent* const* a_event,
-//                                                               RE::BSTEventSource<RE::InputEvent*>* a_eventSource) {
-//    if (a_menuControls->isProcessing) return _ProcessEvent(a_menuControls, a_event, a_eventSource);
-//
-//    for (auto event = *a_event; event; event = event->next) {
-//        if (event->eventType != RE::INPUT_EVENT_TYPE::kButton) continue;
-//
-//        const auto button = event->AsButtonEvent();
-//        if (!button || !button->IsDown()) continue;
-//
-//        const auto menuStringsHolder = RE::InterfaceStrings::GetSingleton();
-//        const auto ui = RE::UI::GetSingleton();
-//        const auto journalmenu = ui->GetMenu<RE::JournalMenu>(menuStringsHolder->journalMenu);
-//
-//        if (journalmenu && ui->IsMenuOpen(RE::JournalMenu::MENU_NAME)) {
-//			logger::info("journal menu is open");
-//            auto& runtime_data = journalmenu->GetRuntimeData();
-//            RE::GFxValue selectedIndex;
-//            if (!runtime_data.root.GetMember("selectedIndex", &selectedIndex)) return -1;
-//            const std::int32_t selected_index = static_cast<std::int32_t>(selectedIndex.GetNumber());
-//            logger::trace("selectedIndex: {}", selected_index);
-//            return selected_index;
-//		} else return _ProcessEvent(a_menuControls, a_event, a_eventSource);
-//
-//        const auto userEventHolder = RE::UserEvents::GetSingleton();
-//        logger::info("user event {}", button->QUserEvent().c_str());
-//
-//
-//
-//    }
-//    
-//    return _ProcessEvent(a_menuControls, a_event, a_eventSource);
-//}

@@ -412,7 +412,6 @@ void SaveRegistry::HandleRotation()
 		it->PopulateFileEntryData();
 		if (it->characterID != curr_playerID) continue;
         if (const auto save_type = static_cast<int>(it->saveType.get()); save_type != 0x1) continue;
-		logger::info("Save number: {}", it->saveNumber);
 		save_nos.insert(it->saveNumber);
 	}
 
@@ -425,8 +424,6 @@ void SaveRegistry::HandleRotation()
         }
     }
 	
-	logger::info("Last save number: {}", last_save_no+1);
-
 	const auto first_saveno = registry.contains(curr_playerID) && !registry[curr_playerID].empty() ? registry[curr_playerID].front() : 0;
     if (const auto removed_first = Add(curr_playerID, last_save_no+1)) Remove(curr_playerID,first_saveno);
 	to_json();
@@ -478,7 +475,6 @@ void SaveRegistry::to_json()
     ofs << buffer.GetString() << '\n';
     ofs.close();
 
-	logger::info("Save registry saved successfully. Char count: {}", registry.size());
 }
 
 void SaveRegistry::from_json()
@@ -543,5 +539,4 @@ void SaveRegistry::from_json()
 		max_saves = doc["max_saves"].GetInt();
 	}
 
-	logger::info("Registry loaded successfully. Char count: {}", registry.size());
 }
