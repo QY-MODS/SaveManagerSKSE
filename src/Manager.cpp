@@ -37,13 +37,13 @@ void Manager::QueueSaveGame(int seconds, SaveSettings::Scenarios scenario) {
 
 std::vector<std::pair<int, SaveSettings::Scenarios>> Manager::GetQueue() {
     // mutex lock
-    std::lock_guard<std::mutex> lock(mutex);
+	std::shared_lock<std::shared_mutex> lock(sharedMutex_);
     return std::vector(queue.begin(), queue.end());
 }
 
 bool Manager::DeleteQueuedSave(const SaveSettings::Scenarios scenario){
     // mutex lock
-	std::lock_guard<std::mutex> lock(mutex);
+	std::unique_lock<std::shared_mutex> lock(sharedMutex_);
     bool deleted = false;
 	for (auto it = queue.begin(); it != queue.end();) {
 		if (it->second == scenario) {
@@ -57,7 +57,7 @@ bool Manager::DeleteQueuedSave(const SaveSettings::Scenarios scenario){
 void Manager::ClearQueue(){
     Stop();
     // mutex lock
-    std::lock_guard<std::mutex> lock(mutex);
+    std::unique_lock<std::shared_mutex> lock(sharedMutex_);
     queue.clear();
 };
 
@@ -89,6 +89,7 @@ void Manager::UpdateLoop() {
         ui->IsMenuOpen(RE::MainMenu::MENU_NAME) ||
         ui->IsMenuOpen(RE::LoadingMenu::MENU_NAME) ||
         game_is_loading.load()) {
+		logger::info("Game is paused or menu is open, returning...");
 		return;
 	}
 

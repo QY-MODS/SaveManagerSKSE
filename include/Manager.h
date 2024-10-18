@@ -1,4 +1,5 @@
 #pragma once
+#include <shared_mutex>
 #include "Ticker.h"
 
 struct PairFirstComparator {
@@ -10,9 +11,7 @@ struct PairFirstComparator {
 
 class Manager : public Ticker {
     
-private:
-
-    std::mutex mutex;
+    std::shared_mutex sharedMutex_;
 
     std::set<std::pair<int, SaveSettings::Scenarios>, PairFirstComparator> queue;
     std::map<std::string, unsigned int> time_spent;

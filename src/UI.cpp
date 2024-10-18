@@ -404,7 +404,7 @@ void __stdcall MCP::RenderStatus(){
 		}
 	} else {
 		if (ImGui::Button("Enable Mod")) {
-			M->EnableMod();
+            Manager::EnableMod();
 		}
 	}
 
